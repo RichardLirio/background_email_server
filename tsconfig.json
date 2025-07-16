@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",                               
-    "baseUrl": "./",        
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "types": ["node"],                         
+    "baseUrl": "./",                            
     "paths": {
       "@/*": ["./src/*"]
     },                                                         
@@ -22,5 +20,4 @@
     "noUncheckedIndexedAccess": true,               
     "skipLibCheck": true                                 
   },
-  "include": ["src/**/*", "types/**/*"],    
 }
