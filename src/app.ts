@@ -1,4 +1,8 @@
-import fastify, { FastifyInstance, FastifyRequest } from "fastify";
+import fastify, {
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+} from "fastify";
 import { env } from "./env";
 import { ZodError } from "zod";
 import { ErrorResponse, SuccessResponse } from "./@types/response";
@@ -64,34 +68,45 @@ async function registerPlugins(app: FastifyInstance) {
   }
 
   // Hook de autenticação personalizado
-  app.decorate("authenticate", async function (request: FastifyRequest) {
-    try {
-      const authorization = request.headers.authorization;
-      if (!authorization) {
-        throw new Error("Token não fornecido");
-      }
+  app.decorate(
+    "authenticate",
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      try {
+        const authorization = request.headers.authorization;
+        if (!authorization) {
+          throw new Error("Token não fornecido");
+        }
 
-      const token = authorization.replace("Bearer ", "");
-      const decoded = jwt.verify(token, env.JWT_SECRET) as {
-        client_id: string;
-      };
-      const clients = await getClients();
-      const client = clients.find((client) => {
-        return decoded.client_id === client.id;
-      });
-      if (!client || !client.active) {
-        throw new Error("Cliente inválido ou inativo");
-      }
+        const token = authorization.replace("Bearer ", "");
+        const decoded = jwt.verify(token, env.JWT_SECRET) as {
+          client_id: string;
+        };
+        const clients = await getClients();
+        const client = clients.find((client) => {
+          return decoded.client_id === client.id;
+        });
+        if (!client || !client.active) {
+          throw new Error("Cliente inválido ou inativo");
+        }
 
-      request.user = {
-        client_id: client.id,
-        name: client.name,
-        scopes: client.scopes,
-      };
-    } catch (error) {
-      app.log.warn("Erro na autenticação", error);
+        request.user = {
+          client_id: client.id,
+          name: client.name,
+          scopes: client.scopes,
+        };
+      } catch (error) {
+        app.log.warn("Erro na autenticação", error);
+        const response: ErrorResponse = {
+          success: false,
+          message: "Não autenticado",
+          error: `Bearer token requerido.`,
+          statusCode: 401,
+        };
+
+        return reply.status(401).send(response);
+      }
     }
-  });
+  );
 }
 
 async function registerRoutes(app: FastifyInstance) {
