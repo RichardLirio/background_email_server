@@ -1,0 +1,26 @@
+
+services:
+
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --dir
+      - /bitnami/redis/data
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/bitnami/redis/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+      
+volumes:
+  redis-data:
