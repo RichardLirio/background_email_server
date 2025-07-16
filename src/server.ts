@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 
 import { env } from "./env";
 import { buildApp } from "./app";
+import { FileExist } from "./helpers/data.helper";
 
 class Server {
   private app: FastifyInstance | null = null;
@@ -34,6 +35,7 @@ class Server {
 
   async start() {
     try {
+      await FileExist("./src/data/data.json");
       if (!this.app) {
         await this.initialize();
       }

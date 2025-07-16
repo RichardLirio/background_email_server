@@ -31,6 +31,7 @@
     "zod": "^3.25.75"
   },
   "dependencies": {
+    "@fastify/auth": "^5.0.2",
     "@fastify/bearer-auth": "^10.1.1",
     "@fastify/cors": "^11.0.1",
     "@fastify/helmet": "^13.0.1",

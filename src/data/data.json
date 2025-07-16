@@ -1,0 +1,13 @@
+[
+  {
+    "id": "56ec30b9-1242-4b0e-8f29-6f2ed783b193",
+    "secret": "$2b$10$fYbJQreiJl7G6pPtDUJLiuimk2Pu.FN9S.eHN3qyIKax6FrB9fNa.",
+    "name": "HM Tecnologia Ltda Admin",
+    "active": true,
+    "scopes": [
+      "read",
+      "write",
+      "admin"
+    ]
+  }
+]

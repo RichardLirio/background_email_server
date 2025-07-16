@@ -1,8 +1,11 @@
-import fastify, { FastifyInstance } from "fastify";
+import fastify, { FastifyInstance, FastifyRequest } from "fastify";
 import { env } from "./env";
 import { ZodError } from "zod";
 import { ErrorResponse, SuccessResponse } from "./@types/response";
 import { HttpError } from "./utils/http-error";
+import jwt from "jsonwebtoken";
+import { authRoutes } from "./routes/auth.routes";
+import { getClients } from "./data/clients";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
@@ -34,16 +37,17 @@ export async function buildApp(): Promise<FastifyInstance> {
 }
 
 async function registerPlugins(app: FastifyInstance) {
+  await app.register(import("@fastify/auth"));
+
   // CORS
   await app.register(import("@fastify/cors"), {
     origin: env.CORS_ORIGINS || ["http://localhost:3333"],
-    credentials: true,
   });
 
   // Rate limiting
   await app.register(import("@fastify/rate-limit"), {
     max: env.RATE_LIMIT_MAX || 100,
-    timeWindow: "1 minute",
+    timeWindow: "1 minute", // limite dee 100 requisições por minuto do mesmo endereço
   });
 
   // Helmet para segurança básica
@@ -58,6 +62,36 @@ async function registerPlugins(app: FastifyInstance) {
       },
     });
   }
+
+  // Hook de autenticação personalizado
+  app.decorate("authenticate", async function (request: FastifyRequest) {
+    try {
+      const authorization = request.headers.authorization;
+      if (!authorization) {
+        throw new Error("Token não fornecido");
+      }
+
+      const token = authorization.replace("Bearer ", "");
+      const decoded = jwt.verify(token, env.JWT_SECRET) as {
+        client_id: string;
+      };
+      const clients = await getClients();
+      const client = clients.find((client) => {
+        return decoded.client_id === client.id;
+      });
+      if (!client || !client.active) {
+        throw new Error("Cliente inválido ou inativo");
+      }
+
+      request.user = {
+        client_id: client.id,
+        name: client.name,
+        scopes: client.scopes,
+      };
+    } catch (error) {
+      app.log.warn("Erro na autenticação", error);
+    }
+  });
 }
 
 async function registerRoutes(app: FastifyInstance) {
@@ -80,8 +114,9 @@ async function registerRoutes(app: FastifyInstance) {
 
     return reply.status(200).send(response);
   });
-  //const prefix = "/api/v1";
+  const prefix = "/api/v1";
   // Rotas da API
+  await app.register(authRoutes, { prefix: `${prefix}/auth` });
 }
 
 function setupErrorHandling(app: FastifyInstance) {
