@@ -1,4 +1,4 @@
-import { AuthController } from "@/controllers/auth.controller";
+import { AuthController } from "@/app/controllers/auth.controller";
 import { FastifyInstance } from "fastify";
 
 export async function authRoutes(app: FastifyInstance) {

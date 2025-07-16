@@ -5,10 +5,10 @@ import fastify, {
 } from "fastify";
 import { env } from "./env";
 import { ZodError } from "zod";
-import { ErrorResponse, SuccessResponse } from "./@types/response";
-import { HttpError } from "./utils/http-error";
+import { ErrorResponse, SuccessResponse } from "./app/@types/response";
+import { HttpError } from "./app/utils/http-error";
 import jwt from "jsonwebtoken";
-import { authRoutes } from "./routes/auth.routes";
+import { authRoutes } from "./app/routes/auth.routes";
 import { getClients } from "./data/clients";
 
 export async function buildApp(): Promise<FastifyInstance> {

@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 
 import { env } from "./env";
 import { buildApp } from "./app";
-import { FileExist } from "./helpers/data.helper";
+import { FileExist } from "./app/helpers/data.helper";
 
 class Server {
   private app: FastifyInstance | null = null;
