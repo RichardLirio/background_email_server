@@ -11,6 +11,13 @@ const envSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number(),
   JWT_SECRET: z.string(),
   JWT_EXPIRES_IN: z.string().default("1h"),
+  MAIL_HOST: z.string(),
+  MAIL_PORT: z.coerce.number(),
+  MAIL_USER: z.string(),
+  MAIL_PASS: z.string(),
+  REDIS_PASSWORD: z.string(),
+  REDIS_HOST: z.string().default("127.0.0.1"),
+  REDIS_PORT: z.coerce.number().default(6379),
 });
 
 const _env = envSchema.safeParse(process.env);
