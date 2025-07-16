@@ -6,9 +6,5 @@ export async function authRoutes(app: FastifyInstance) {
 
   app.post("/token", authController.auth);
 
-  app.post(
-    "/register",
-    { preHandler: app.auth([app.authenticate!]) },
-    authController.register
-  );
+  app.post("/register", authController.register);
 }

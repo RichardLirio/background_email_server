@@ -17,7 +17,6 @@ export async function getClients() {
   const rawData = fs.readFileSync(filePath, "utf-8");
 
   const clientsArray: Client[] = JSON.parse(rawData);
-  console.log("🚀 ~ getClients ~ clientsArray:", clientsArray);
 
   return clientsArray;
 }

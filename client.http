@@ -1,4 +1,5 @@
 @baseUrl = http://localhost:3333
+@authToken = {{Authenticate.response.body.data.access_token}}
 
 
 # @name Register
@@ -22,5 +23,11 @@ Content-Type: application/json
     "client_id": "56ec30b9-1242-4b0e-8f29-6f2ed783b193",
     "client_secret":"Admin@103256"
 }
+
+###
+
+# @name SendEmail
+POST {{baseUrl}}/api/v1/queue/mail
+Authorization: Bearer {{authToken}}
 
 ###

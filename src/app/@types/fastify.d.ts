@@ -13,7 +13,7 @@ declare module "fastify" {
     ) => (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
   interface FastifyRequest {
-    user?: {
+    user: {
       client_id: string;
       name: string;
       scopes: string[];
