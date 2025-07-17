@@ -25,9 +25,3 @@ Content-Type: application/json
 }
 
 ###
-
-# @name SendEmail
-POST {{baseUrl}}/api/v1/queue/mail
-Authorization: Bearer {{authToken}}
-
-###
