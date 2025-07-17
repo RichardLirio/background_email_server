@@ -4,7 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faturamento - HM Informática</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:AllowPNG/>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
     <style>
+        /* Reset básico */
         * {
             margin: 0;
             padding: 0;
@@ -12,43 +23,65 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            color: #333;
+            color: #333333;
             line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        
+        td {
+            border-collapse: collapse;
+        }
+        
+        /* Container principal */
+        .email-wrapper {
+            width: 100%;
+            background-color: #f5f5f5;
+            padding: 20px 0;
         }
         
         .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: white;
+            width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            box-shadow: 0 2px 10px rgba(67, 67, 67, 0.1);
         }
         
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #e74c3c 100%);
-            color: white;
+            background-color: #e74c3c;
             padding: 30px 20px;
             text-align: center;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0 0 0;
         }
         
         .logo {
             max-width: 300px;
             height: auto;
-            margin-bottom: 20px;
-            background: white;
+            display: block;
+            margin: 0 auto 20px auto;
+            background-color: #ffffff;
             padding: 10px;
             border-radius: 8px;
         }
         
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0;
-        }
-        
+        /* Content */
         .content {
             padding: 40px 30px;
         }
@@ -56,22 +89,24 @@
         .greeting {
             font-size: 18px;
             margin-bottom: 20px;
-            color: #2c3e50;
+            color: #b8c1ca;
         }
         
         .message {
             font-size: 16px;
             line-height: 1.8;
             margin-bottom: 30px;
-            color: #555;
+            color: #555555;
         }
         
+        /* Highlight box */
         .highlight-box {
-            background: linear-gradient(135deg, #fdf2f2 0%, #ffebee 100%);
+            background-color: #fdf2f2;
+            border: 1px solid #e74c3c;
             border-left: 4px solid #e74c3c;
             padding: 20px;
             margin: 25px 0;
-            border-radius: 0 8px 8px 0;
+            border-radius: 4px;
         }
         
         .highlight-box h3 {
@@ -81,168 +116,231 @@
         }
         
         .highlight-box p {
-            color: #555;
+            color: #555555;
             margin: 0;
+        }
+        
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
         }
         
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
+            background-color: #e74c3c;
+            color: #ffffff;
             padding: 15px 30px;
             text-decoration: none;
             border-radius: 25px;
-            font-weight: 600;
-            margin: 20px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            font-weight: bold;
+            font-size: 16px;
         }
         
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            background-color: #c0392b;
         }
         
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        /* Info table */
+        .info-table {
+            width: 100%;
             margin: 25px 0;
         }
         
         .info-item {
-            background: #f8f9fa;
+            width: 50%;
             padding: 15px;
-            border-radius: 8px;
+            background-color: #f8f9fa;
             border-left: 3px solid #e74c3c;
+            vertical-align: top;
         }
         
         .info-item h4 {
             color: #2c3e50;
             margin-bottom: 5px;
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
         
         .info-item p {
-            color: #666;
+            color: #666666;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: bold;
+            margin: 0;
         }
         
+        /* Divider */
+        .divider {
+            height: 2px;
+            background-color: #e74c3c;
+            margin: 30px 0;
+        }
+        
+        /* Signature */
+        .signature {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .signature strong {
+            color: #333333;
+        }
+        
+        .signature .company-name {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        /* Footer */
         .footer {
             background-color: #2c3e50;
-            color: white;
+            color: #ffffff;
             text-align: center;
-            padding: 25px;
-        }
-        
-        .footer-content {
-            margin-bottom: 15px;
+            padding: 25px 20px;
         }
         
         .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
             margin-bottom: 15px;
         }
         
         .footer-links a {
             color: #e74c3c;
             text-decoration: none;
+            margin: 0 10px;
             font-size: 14px;
-            transition: color 0.3s ease;
         }
         
         .footer-links a:hover {
-            color: #ec7063;
+            text-decoration: underline;
         }
         
         .footer-text {
             font-size: 12px;
             color: #bdc3c7;
+            line-height: 1.4;
         }
         
-        .divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #e74c3c, transparent);
-            margin: 30px 0;
-        }
-        
-        @media (max-width: 600px) {
+        /* Responsive */
+        @media screen and (max-width: 600px) {
             .email-container {
-                margin: 10px;
-                border-radius: 0;
+                width: 100% !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
             }
             
             .content {
-                padding: 20px;
+                padding: 20px !important;
             }
             
-            .info-grid {
-                grid-template-columns: 1fr;
+            .info-table {
+                width: 100% !important;
             }
             
-            .footer-links {
-                flex-direction: column;
-                gap: 10px;
+            .info-item {
+                width: 100% !important;
+                display: block !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .footer-links a {
+                display: block !important;
+                margin: 5px 0 !important;
+            }
+        }
+        
+        /* Outlook specific */
+        .outlook-spacer {
+            font-size: 0;
+            line-height: 0;
+            height: 0;
+            mso-hide: all;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .email-container {
+                background-color: #4f4f4f !important;
+            }
+            
+            .content {
+                color: #ffffff !important;
+            }
+            
+            .message {
+                color: #cccccc !important;
             }
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <div class="header">
-            <img src="https://hm.inf.br/imagens/HMtimbre1c.png" alt="HM Informática" class="logo">
-            <h1>Arquivo Eletrônico de Faturamento</h1>
-        </div>
+    <div class="email-wrapper">
+        <!--[if mso]>
+        <table width="600" align="center" cellpadding="0" cellspacing="0" style="width:600px;">
+        <tr>
+        <td>
+        <![endif]-->
         
-        <div class="content">
-            <div class="greeting">
-                Olá, <strong>{{client_name}}</strong>!
+        <div class="email-container">
+            <!-- Header -->
+            <div class="header">
+                <img src="https://hm.inf.br/imagens/HMtimbre1c.png" alt="HM Informática" class="logo">
+                <h1>Arquivo Eletrônico de Faturamento</h1>
             </div>
             
-            <div class="message">
-                Você está recebendo o faturamento referente aos serviços de informática prestados por nossa empresa. 
-                Verifique se consta anexado o boleto de pagamento para efetuar o pagamento dentro do prazo de vencimento.
-            </div>
-            
-            <div class="highlight-box">
-                <h3>📋 Instruções Importantes</h3>
-                <p>• Verifique o boleto anexado neste email<br>
-                • Confira a data de vencimento<br>
-                • Em caso de dúvidas, entre em contato conosco</p>
-            </div>
-            
-            <div class="info-grid">
-                <div class="info-item">
-                    <h4>Telefone</h4>
-                    <p>(27) 3722-6990</p>
+            <!-- Content -->
+            <div class="content">
+                <div class="greeting">
+                    Olá, <strong>{{client_name}}</strong>!
                 </div>
-                <div class="info-item">
-                    <h4>Website</h4>
-                    <p>www.hm.inf.br</p>
+                
+                <div class="message">
+                    Você está recebendo o faturamento referente aos serviços de informática prestados por nossa empresa. 
+                    Verifique se consta anexado o boleto de pagamento para efetuar o pagamento dentro do prazo de vencimento.
+                </div>
+                
+                <div class="highlight-box">
+                    <h3>📋 Instruções Importantes</h3>
+                    <p>
+                        • Verifique o boleto anexado neste email<br>
+                        • Confira a data de vencimento<br>
+                        • Em caso de dúvidas, entre em contato conosco
+                    </p>
+                </div>
+                
+                <!-- Info Table -->
+                <table class="info-table">
+                    <tr>
+                        <td class="info-item">
+                            <h4>Telefone</h4>
+                            <p>(27) 3722-6990</p>
+                        </td>
+                        <td class="info-item">
+                            <h4>Website</h4>
+                            <p>www.hm.inf.br</p>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- Button -->
+                <div class="button-container">
+                    <a href="mailto:contato@hm.inf.br" class="cta-button">
+                        💬 Fale Conosco
+                    </a>
+                </div>
+                
+                <!-- Divider -->
+                <div class="divider"></div>
+                
+                <!-- Signature -->
+                <div class="signature">
+                    <p><strong>Atenciosamente,</strong><br>
+                    <span class="company-name">HM Informática</span></p>
                 </div>
             </div>
             
-            <div style="text-align: center;">
-                <a href="mailto:contato@hm.inf.br" class="cta-button">
-                    💬 Fale Conosco
-                </a>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <div style="text-align: center;">
-                <p><strong>Atenciosamente,</strong><br>
-                <span style="color: #e74c3c; font-weight: 600;">HM Informática</span></p>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <div class="footer-content">
+            <!-- Footer -->
+            <div class="footer">
                 <div class="footer-links">
                     <a href="https://www.hm.inf.br">Site Oficial</a>
                     <a href="mailto:contato@hm.inf.br">Contato</a>
@@ -254,6 +352,12 @@
                 </div>
             </div>
         </div>
+        
+        <!--[if mso]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
     </div>
 </body>
 </html>
