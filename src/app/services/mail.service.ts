@@ -2,6 +2,8 @@ import crypto from "crypto";
 import mail from "../libs/mail";
 import { redis } from "../libs/queue";
 import { EmailData } from "../schemas/mail.schemas";
+import fs from "fs";
+import path from "path";
 
 export class EmailService {
   private static readonly IDEMPOTENCY_PREFIX = "email:sent:";
@@ -85,6 +87,16 @@ export class EmailService {
     };
   }
 
+  // Preparar Html para o cliente
+
+  static async proccessHtml(name: string) {
+    const htmlPath = path.resolve(__dirname, "../../..", "example.html");
+    const htmlContent = fs.readFileSync(htmlPath, "utf-8");
+    const finalHtml = htmlContent.replace("{{client_name}}", name);
+
+    return finalHtml;
+  }
+
   // Processa e envia um único email
   static async processEmail(emailData: EmailData): Promise<{
     success: boolean;
@@ -118,7 +130,7 @@ export class EmailService {
         from: `${emailData.from.name} <${emailData.from.email}>`,
         to: `${emailData.to.name} <${emailData.to.email}>`,
         subject: emailData.subject,
-        html: emailData.html,
+        html: await this.proccessHtml(emailData.to.name),
         ...(emailData.cc?.email && {
           cc: `${emailData.cc.name} <${emailData.cc.email}>`,
         }),
