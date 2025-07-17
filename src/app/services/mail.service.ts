@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import mail from "../libs/mail";
-import { redis, EmailData } from "../libs/queue";
+import { redis } from "../libs/queue";
+import { EmailData } from "../schemas/mail.schemas";
 
 export class EmailService {
   private static readonly IDEMPOTENCY_PREFIX = "email:sent:";

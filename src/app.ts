@@ -10,7 +10,6 @@ import { HttpError } from "./app/utils/http-error";
 import jwt from "jsonwebtoken";
 import { authRoutes } from "./app/routes/auth.routes";
 import { getClients } from "./data/clients";
-import { queueRoutes } from "./app/routes/queue.routes";
 import { mailRoutes } from "./app/routes/mail.routes";
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -134,7 +133,6 @@ async function registerRoutes(app: FastifyInstance) {
   const prefix = "/api/v1";
   // Rotas da API
   await app.register(authRoutes, { prefix: `${prefix}/auth` });
-  await app.register(queueRoutes, { prefix: `${prefix}/queue` });
   await app.register(mailRoutes, { prefix: `${prefix}/mail` });
 }
 

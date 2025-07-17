@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "start:all": "pnpm run start && pnpm run worker",
+    "dev:all": "pnpm run dev && pnpm run worker:dev",
     "dev": "tsx watch src/server.ts",
+    "worker": "node dist/worker.js",
     "worker:dev": "tsx watch src/worker.ts",
     "start": "node dist/server.js",
     "prepare": "husky",
@@ -13,7 +16,7 @@
     "check:fix": "eslint . --ext .ts  --fix"
   },
   "keywords": [],
-  "author": "",
+  "author": "Richard Lirio",
   "license": "ISC",
   "packageManager": "pnpm@10.10.0",
   "devDependencies": {

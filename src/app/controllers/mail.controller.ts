@@ -2,14 +2,14 @@ import crypto from "crypto";
 import { BatchEmailJobData, emailBatchQueue } from "../libs/queue";
 import { EmailService } from "../services/mail.service";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { EmailData, mailSchema } from "../schemas/mail.schemas";
+import { EmailList, emailListSchema } from "../schemas/mail.schemas";
 import { HttpError } from "../utils/http-error";
 import { SuccessResponse } from "../@types/response";
 
 export class EmailController {
   // Adiciona um lote de emails à fila
   async addBatch(request: FastifyRequest, reply: FastifyReply) {
-    const emails = mailSchema.parse(request.body) as EmailData;
+    const emails = emailListSchema.parse(request.body) as EmailList;
 
     try {
       // Validar entrada
