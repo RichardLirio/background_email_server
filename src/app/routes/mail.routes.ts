@@ -28,29 +28,14 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.getActiveJobs
   );
 
-  //   /**
-  //    * DELETE /api/emails/job/:jobId
-  //    * Cancela um job
-  //    */
-  //   router.delete("/job/:jobId", async (req: Request, res: Response) => {
-  //     try {
-  //       const { jobId } = req.params;
-  //       const result = await EmailController.cancelJob(jobId);
+  // DELETE /api/emails/job/:jobId
+  // Cancela um job
 
-  //       if (!result.success) {
-  //         return res.status(400).json(result);
-  //       }
-
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  app.delete(
+    "/job/:jobId",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.cancelJob
+  );
 
   //   /**
   //    * GET /api/emails/stats

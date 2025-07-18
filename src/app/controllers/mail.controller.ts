@@ -154,51 +154,44 @@ export class EmailController {
     }
   }
 
-  // /**
-  //  * Cancela um job
-  //  */
-  // static async cancelJob(jobId: string): Promise<{
-  //   success: boolean;
-  //   message: string;
-  // }> {
-  //   try {
-  //     const job = await emailBatchQueue.getJob(jobId);
+  // Cancela um Job
+  async cancelJob(request: FastifyRequest, reply: FastifyReply) {
+    const { jobId } = jobParamsId.parse(request.params) as JobParamId;
 
-  //     if (!job) {
-  //       return {
-  //         success: false,
-  //         message: "Job não encontrado",
-  //       };
-  //     }
+    try {
+      const job = await emailBatchQueue.getJob(jobId);
 
-  //     const state = await job.getState();
+      if (!job) {
+        throw new HttpError("Job não encontrado", 404);
+      }
 
-  //     if (state === "completed") {
-  //       return {
-  //         success: false,
-  //         message: "Job já foi completado",
-  //       };
-  //     }
+      const state = await job.getState();
 
-  //     if (state === "active") {
-  //       return {
-  //         success: false,
-  //         message: "Job está sendo processado e não pode ser cancelado",
-  //       };
-  //     }
+      if (state === "completed") {
+        throw new HttpError("Job já foi completado", 400);
+      }
 
-  //     await job.remove();
-  //     console.log(`🗑️ Job ${jobId} cancelado`);
+      if (state === "active") {
+        throw new HttpError(
+          "Job está sendo processado e não pode ser cancelado",
+          400
+        );
+      }
 
-  //     return {
-  //       success: true,
-  //       message: "Job cancelado com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao cancelar job:", error);
-  //     throw new Error("Erro ao cancelar job");
-  //   }
-  // }
+      await job.remove();
+      console.log(`🗑️ Job ${jobId} cancelado`);
+
+      const response: SuccessResponse = {
+        success: true,
+        message: `🗑️ Job ${jobId} cancelado com sucesso.`,
+      };
+
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao cancelar job:", error);
+      throw new Error("Erro ao cancelar job");
+    }
+  }
 
   // /**
   //  * Obtém estatísticas gerais
