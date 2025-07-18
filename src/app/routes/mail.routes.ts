@@ -3,8 +3,8 @@ import { EmailController } from "../controllers/mail.controller";
 
 export async function mailRoutes(app: FastifyInstance) {
   const emailController = new EmailController();
-
-  //Adiciona um lote de emails à fila
+  // POST emails/batch
+  // Adiciona um lote de emails à fila
   app.post(
     "/batch",
     { preHandler: app.auth([app.authenticate!]) },
@@ -12,32 +12,21 @@ export async function mailRoutes(app: FastifyInstance) {
   );
 
   // GET emails/job/:jobId
+  // Captura estatus do job pelo id
   app.get(
     "/job/:jobId",
     { preHandler: app.auth([app.authenticate!]) },
     emailController.getJobStatus
   );
 
-  //   /**
-  //    * GET /api/emails/jobs/active
-  //    * Lista jobs ativos
-  //    */
-  //   router.get("/jobs/active", async (req: Request, res: Response) => {
-  //     try {
-  //       const activeJobs = await EmailController.getActiveJobs();
-  //       res.json({
-  //         success: true,
-  //         data: activeJobs,
-  //       });
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // GET /api/emails/jobs/active
+  // Lista jobs ativos
+
+  app.get(
+    "/jobs/active",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.getActiveJobs
+  );
 
   //   /**
   //    * DELETE /api/emails/job/:jobId

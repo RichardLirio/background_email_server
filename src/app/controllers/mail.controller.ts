@@ -128,33 +128,31 @@ export class EmailController {
     }
   }
 
-  // /**
-  //  * Lista jobs ativos
-  //  */
-  // static async getActiveJobs(): Promise<
-  //   Array<{
-  //     id: string;
-  //     batchId: string;
-  //     progress: number;
-  //     totalEmails: number;
-  //     createdAt: string;
-  //   }>
-  // > {
-  //   try {
-  //     const activeJobs = await emailBatchQueue.getActive();
+  //Lista jobs ativos
+  async getActiveJobs(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      const activeJobs = await emailBatchQueue.getActive();
 
-  //     return activeJobs.map((job) => ({
-  //       id: String(job.id),
-  //       batchId: job.data.batchId,
-  //       progress: job.progress(),
-  //       totalEmails: job.data.emails.length,
-  //       createdAt: new Date(job.timestamp).toISOString(),
-  //     }));
-  //   } catch (error) {
-  //     console.error("❌ Erro ao obter jobs ativos:", error);
-  //     throw new Error("Erro ao consultar jobs ativos");
-  //   }
-  // }
+      const response: SuccessResponse = {
+        success: true,
+        message: `📤 Lista de Jobs ativos encontrada com sucesso.`,
+        data: {
+          activeJobs: activeJobs.map((job) => ({
+            id: String(job.id),
+            batchId: job.data.batchId,
+            progress: job.progress(),
+            totalEmails: job.data.emails.length,
+            createdAt: new Date(job.timestamp).toISOString(),
+          })),
+        },
+      };
+
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao obter jobs ativos:", error);
+      throw new Error("Erro ao consultar jobs ativos");
+    }
+  }
 
   // /**
   //  * Cancela um job
