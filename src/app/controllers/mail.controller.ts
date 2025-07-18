@@ -10,6 +10,7 @@ import {
 } from "../schemas/mail.schemas";
 import { HttpError } from "../utils/http-error";
 import { SuccessResponse } from "../@types/response";
+import { emailProcessor } from "../jobs/mail.processor";
 
 export class EmailController {
   // Adiciona um lote de emails à fila com prioridade normal
@@ -193,59 +194,51 @@ export class EmailController {
     }
   }
 
-  // /**
-  //  * Obtém estatísticas gerais
-  //  */
-  // static async getStats(): Promise<{
-  //   processor: unknown;
-  //   recentJobs: Array<{
-  //     id: string;
-  //     batchId: string;
-  //     status: string;
-  //     totalEmails: number;
-  //     result?: unknown;
-  //     createdAt: string;
-  //     finishedAt?: string;
-  //   }>;
-  // }> {
-  //   try {
-  //     const processorStats = await emailProcessor.getStats();
+  //  Obtém estatísticas gerais
+  async getStats(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const processorStats = await emailProcessor.getStats();
 
-  //     // Obter jobs recentes (últimos 10 completos)
-  //     const recentCompleted = await emailBatchQueue.getCompleted(0, 9);
-  //     const recentFailed = await emailBatchQueue.getFailed(0, 9);
+      // Obter jobs recentes (últimos 10 completos)
+      const recentCompleted = await emailBatchQueue.getCompleted(0, 9);
+      const recentFailed = await emailBatchQueue.getFailed(0, 9);
 
-  //     const recentJobs = [...recentCompleted, ...recentFailed]
-  //       .sort(
-  //         (a, b) =>
-  //           (b.finishedOn || b.timestamp) - (a.finishedOn || a.timestamp)
-  //       )
-  //       .slice(0, 10)
-  //       .map((job) => ({
-  //         id: String(job.id),
-  //         batchId: job.data.batchId,
-  //         status: job.finishedOn ? "completed" : "failed",
-  //         totalEmails: job.data.emails.length,
-  //         result: job.returnvalue,
-  //         createdAt: new Date(job.timestamp).toISOString(),
-  //         finishedAt: job.finishedOn
-  //           ? new Date(job.finishedOn).toISOString()
-  //           : undefined,
-  //       }));
+      const recentJobs = [...recentCompleted, ...recentFailed]
+        .sort(
+          (a, b) =>
+            (b.finishedOn || b.timestamp) - (a.finishedOn || a.timestamp)
+        )
+        .slice(0, 10)
+        .map((job) => ({
+          id: String(job.id),
+          batchId: job.data.batchId,
+          status: job.finishedOn ? "completed" : "failed",
+          totalEmails: job.data.emails.length,
+          result: job.returnvalue,
+          createdAt: new Date(job.timestamp).toISOString(),
+          finishedAt: job.finishedOn
+            ? new Date(job.finishedOn).toISOString()
+            : undefined,
+        }));
 
-  //     return {
-  //       processor: processorStats,
-  //       recentJobs,
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao obter estatísticas:", error);
-  //     throw new Error("Erro ao consultar estatísticas");
-  //   }
-  // }
+      const response: SuccessResponse = {
+        success: true,
+        message: `🎲 Estatísticas gerais`,
+        data: {
+          processor: processorStats,
+          recentJobs,
+        },
+      };
 
-  // /**
-  //  * Pausa a fila
-  //  */
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao obter estatísticas:", error);
+      throw new Error("Erro ao consultar estatísticas");
+    }
+  }
+
+  //  Pausa a fila
+
   // static async pauseQueue(): Promise<{ success: boolean; message: string }> {
   //   try {
   //     await emailBatchQueue.pause();

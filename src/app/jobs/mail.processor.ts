@@ -1,4 +1,3 @@
-// Importar tipos do Bull se disponível, caso contrário usar nossa interface
 import type { Job } from "bull";
 import { BatchEmailJobData, emailBatchQueue } from "../libs/queue";
 import { EmailService } from "../services/mail.service";

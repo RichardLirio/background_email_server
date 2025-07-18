@@ -37,26 +37,9 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.cancelJob
   );
 
-  //   /**
-  //    * GET /api/emails/stats
-  //    * Obtém estatísticas gerais
-  //    */
-  //   router.get("/stats", async (req: Request, res: Response) => {
-  //     try {
-  //       const stats = await EmailController.getStats();
-  //       res.json({
-  //         success: true,
-  //         data: stats,
-  //       });
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // GET /api/emails/stats
+  // Obtém estatísticas gerais
+  app.get("/stats", emailController.getStats);
 
   //   /**
   //    * POST /api/emails/queue/pause
