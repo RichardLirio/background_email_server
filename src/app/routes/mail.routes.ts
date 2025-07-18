@@ -49,23 +49,13 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.pauseQueue
   );
 
-  //   /**
-  //    * POST /api/emails/queue/resume
-  //    * Retoma a fila
-  //    */
-  //   router.post("/queue/resume", async (req: Request, res: Response) => {
-  //     try {
-  //       const result = await EmailController.resumeQueue();
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // POST /api/emails/queue/resume
+  // Retoma a fila
+  app.post(
+    "/queue/resume",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.resumeQueue
+  );
 
   //   /**
   //    * POST /api/emails/cleanup

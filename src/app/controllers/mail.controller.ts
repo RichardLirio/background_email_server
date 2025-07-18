@@ -238,7 +238,7 @@ export class EmailController {
   }
 
   //  Pausa a fila
-  async pauseQueue(request: FastifyRequest, reply: FastifyReply) {
+  async pauseQueue(_: FastifyRequest, reply: FastifyReply) {
     try {
       await emailBatchQueue.pause();
       console.log("⏸️ Fila pausada");
@@ -256,19 +256,20 @@ export class EmailController {
   }
 
   //  Retoma a fila
-  // static async resumeQueue(): Promise<{ success: boolean; message: string }> {
-  //   try {
-  //     await emailBatchQueue.resume();
-  //     console.log("▶️ Fila retomada");
-  //     return {
-  //       success: true,
-  //       message: "Fila retomada com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao retomar fila:", error);
-  //     throw new Error("Erro ao retomar fila");
-  //   }
-  // }
+  async resumeQueue(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      await emailBatchQueue.resume();
+      console.log("▶️ Fila retomada");
+      const response: SuccessResponse = {
+        success: true,
+        message: "▶️ Fila retomada com sucesso",
+      };
+      return reply.status(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao retomar fila:", error);
+      throw new HttpError("Erro ao retomar fila", 400);
+    }
+  }
 
   // /**
   //  * Força limpeza de jobs antigos
