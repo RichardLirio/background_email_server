@@ -260,6 +260,7 @@ export class EmailController {
     try {
       await emailBatchQueue.resume();
       console.log("▶️ Fila retomada");
+
       const response: SuccessResponse = {
         success: true,
         message: "▶️ Fila retomada com sucesso",
@@ -271,19 +272,19 @@ export class EmailController {
     }
   }
 
-  // /**
-  //  * Força limpeza de jobs antigos
-  //  */
-  // static async cleanupJobs(): Promise<{ success: boolean; message: string }> {
-  //   try {
-  //     await emailProcessor.forceCleanup();
-  //     return {
-  //       success: true,
-  //       message: "Limpeza executada com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro na limpeza:", error);
-  //     throw new Error("Erro ao executar limpeza");
-  //   }
-  // }
+  // Força limpeza de jobs antigos
+  async cleanupJobs(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      await emailProcessor.forceCleanup();
+
+      const response: SuccessResponse = {
+        success: true,
+        message: "🧹 Limpeza executada com sucesso",
+      };
+      return reply.status(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro na limpeza:", error);
+      throw new HttpError("Erro ao executar limpeza", 400);
+    }
+  }
 }

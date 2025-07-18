@@ -3,7 +3,7 @@ import { EmailController } from "../controllers/mail.controller";
 
 export async function mailRoutes(app: FastifyInstance) {
   const emailController = new EmailController();
-  // POST emails/batch
+  // POST /emails/batch
   // Adiciona um lote de emails à fila
   app.post(
     "/batch",
@@ -11,7 +11,7 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.addBatch
   );
 
-  // GET emails/job/:jobId
+  // GET /emails/job/:jobId
   // Captura estatus do job pelo id
   app.get(
     "/job/:jobId",
@@ -19,7 +19,7 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.getJobStatus
   );
 
-  // GET /api/emails/jobs/active
+  // GET /emails/jobs/active
   // Lista jobs ativos
 
   app.get(
@@ -28,7 +28,7 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.getActiveJobs
   );
 
-  // DELETE /api/emails/job/:jobId
+  // DELETE /emails/job/:jobId
   // Cancela um job
 
   app.delete(
@@ -37,11 +37,11 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.cancelJob
   );
 
-  // GET /api/emails/stats
+  // GET /emails/stats
   // Obtém estatísticas gerais
   app.get("/stats", emailController.getStats);
 
-  // POST /api/emails/queue/pause
+  // POST /emails/queue/pause
   //  Pausa a fila
   app.post(
     "/queue/pause",
@@ -49,7 +49,7 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.pauseQueue
   );
 
-  // POST /api/emails/queue/resume
+  // POST /emails/queue/resume
   // Retoma a fila
   app.post(
     "/queue/resume",
@@ -57,21 +57,11 @@ export async function mailRoutes(app: FastifyInstance) {
     emailController.resumeQueue
   );
 
-  //   /**
-  //    * POST /api/emails/cleanup
-  //    * Força limpeza de jobs antigos
-  //    */
-  //   router.post("/cleanup", async (req: Request, res: Response) => {
-  //     try {
-  //       const result = await EmailController.cleanupJobs();
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // POST /emails/cleanup
+  // Força limpeza de jobs antigos
+  app.post(
+    "/cleanup",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.cleanupJobs
+  );
 }
