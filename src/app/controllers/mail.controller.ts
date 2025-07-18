@@ -2,12 +2,17 @@ import crypto from "crypto";
 import { BatchEmailJobData, emailBatchQueue } from "../libs/queue";
 import { EmailService } from "../services/mail.service";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { EmailList, emailListSchema } from "../schemas/mail.schemas";
+import {
+  EmailList,
+  emailListSchema,
+  JobParamId,
+  jobParamsId,
+} from "../schemas/mail.schemas";
 import { HttpError } from "../utils/http-error";
 import { SuccessResponse } from "../@types/response";
 
 export class EmailController {
-  // Adiciona um lote de emails à fila
+  // Adiciona um lote de emails à fila com prioridade normal
   async addBatch(request: FastifyRequest, reply: FastifyReply) {
     const emails = emailListSchema.parse(request.body) as EmailList;
 
@@ -80,79 +85,48 @@ export class EmailController {
     }
   }
 
-  // /**
-  //  * Adiciona um lote prioritário
-  //  */
-  // static async addPriorityBatch(
-  //   emails: EmailData[],
-  //   batchId?: string
-  // ): Promise<{
-  //   success: boolean;
-  //   jobId: string;
-  //   batchId: string;
-  //   totalEmails: number;
-  //   message: string;
-  // }> {
-  //   const result = await this.addBatch(emails, batchId);
+  // Obtém status de um job
+  async getJobStatus(request: FastifyRequest, reply: FastifyReply) {
+    const { jobId } = jobParamsId.parse(request.params) as JobParamId;
 
-  //   // Atualizar prioridade do job
-  //   const job = await emailBatchQueue.getJob(result.jobId);
-  //   if (job) {
-  //     await job.promote();
-  //   }
+    try {
+      const job = await emailBatchQueue.getJob(jobId);
 
-  //   return {
-  //     ...result,
-  //     message: "Lote prioritário adicionado à fila",
-  //   };
-  // }
+      if (!job) {
+        throw new HttpError("Job não encontrado", 404);
+      }
 
-  // /**
-  //  * Obtém status de um job
-  //  */
-  // static async getJobStatus(jobId: string): Promise<{
-  //   status: string;
-  //   progress?: number;
-  //   data?: unknown;
-  //   result?: unknown;
-  //   error?: string;
-  //   createdAt?: string;
-  //   processedAt?: string;
-  //   finishedAt?: string;
-  //   attempts?: number;
-  // }> {
-  //   try {
-  //     const job = await emailBatchQueue.getJob(jobId);
+      const state = await job.getState();
+      const progress = job.progress();
 
-  //     if (!job) {
-  //       return { status: "not_found" };
-  //     }
+      const response: SuccessResponse = {
+        success: true,
+        message: `📤 Lote ${job.id} encontrado com sucesso.`,
+        data: {
+          status: state,
+          progress: typeof progress === "number" ? progress : undefined,
+          data: job.data,
+          result: job.returnvalue,
+          error: job.failedReason,
+          createdAt: job.timestamp
+            ? new Date(job.timestamp).toISOString()
+            : undefined,
+          processedAt: job.processedOn
+            ? new Date(job.processedOn).toISOString()
+            : undefined,
+          finishedAt: job.finishedOn
+            ? new Date(job.finishedOn).toISOString()
+            : undefined,
+          attempts: job.attemptsMade,
+        },
+      };
 
-  //     const state = await job.getState();
-  //     const progress = job.progress();
-
-  //     return {
-  //       status: state,
-  //       progress: typeof progress === "number" ? progress : undefined,
-  //       data: job.data,
-  //       result: job.returnvalue,
-  //       error: job.failedReason,
-  //       createdAt: job.timestamp
-  //         ? new Date(job.timestamp).toISOString()
-  //         : undefined,
-  //       processedAt: job.processedOn
-  //         ? new Date(job.processedOn).toISOString()
-  //         : undefined,
-  //       finishedAt: job.finishedOn
-  //         ? new Date(job.finishedOn).toISOString()
-  //         : undefined,
-  //       attempts: job.attemptsMade,
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao obter status do job:", error);
-  //     throw new Error("Erro ao consultar status do job");
-  //   }
-  // }
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao obter status do job:", error);
+      throw new HttpError("Erro ao consultar status do job", 400);
+    }
+  }
 
   // /**
   //  * Lista jobs ativos

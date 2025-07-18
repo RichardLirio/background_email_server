@@ -133,7 +133,7 @@ async function registerRoutes(app: FastifyInstance) {
   const prefix = "/api/v1";
   // Rotas da API
   await app.register(authRoutes, { prefix: `${prefix}/auth` });
-  await app.register(mailRoutes, { prefix: `${prefix}/mail` });
+  await app.register(mailRoutes, { prefix: `${prefix}/email` });
 }
 
 function setupErrorHandling(app: FastifyInstance) {

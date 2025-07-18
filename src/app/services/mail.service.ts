@@ -15,7 +15,6 @@ export class EmailService {
     const content = JSON.stringify({
       to: emailData.to.email.toLowerCase().trim(),
       subject: emailData.subject.trim(),
-      html: emailData.html.trim(),
     });
 
     return crypto.createHash("sha256").update(content).digest("hex");
@@ -67,7 +66,6 @@ export class EmailService {
     if (!emailData.to?.email)
       errors.push("Email do destinatário é obrigatório");
     if (!emailData.subject) errors.push("Assunto é obrigatório");
-    if (!emailData.html) errors.push("Conteúdo HTML é obrigatório");
 
     // Validar formato de email básico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

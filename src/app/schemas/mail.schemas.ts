@@ -14,10 +14,14 @@ export const mailSchema = z.object({
     email: z.string().email().min(1, "Email é obrigatorio"),
   }),
   subject: z.string().min(1, "Subject é obrigatorio"),
-  html: z.string(),
+});
+
+export const jobParamsId = z.object({
+  jobId: z.string(),
 });
 
 export const emailListSchema = z.array(mailSchema);
 
 export type EmailData = z.infer<typeof mailSchema>;
 export type EmailList = z.infer<typeof emailListSchema>;
+export type JobParamId = z.infer<typeof jobParamsId>;

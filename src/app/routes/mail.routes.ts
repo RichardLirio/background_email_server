@@ -3,67 +3,20 @@ import { EmailController } from "../controllers/mail.controller";
 
 export async function mailRoutes(app: FastifyInstance) {
   const emailController = new EmailController();
-  /**
-   * Adiciona um lote de emails à fila
-   */
+
+  //Adiciona um lote de emails à fila
   app.post(
     "/batch",
     { preHandler: app.auth([app.authenticate!]) },
     emailController.addBatch
   );
 
-  /**
-   * POST /api/emails/batch/priority
-   * Adiciona um lote prioritário de emails à fila
-   */
-  //   router.post("/batch/priority", async (req: Request, res: Response) => {
-  //     try {
-  //       const { emails, batchId } = req.body as {
-  //         emails: EmailData[];
-  //         batchId?: string;
-  //       };
-
-  //       const result = await EmailController.addPriorityBatch(emails, batchId);
-  //       res.status(201).json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(400).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
-
-  //   /**
-  //    * GET /api/emails/job/:jobId
-  //    * Obtém status de um job específico
-  //    */
-  //   router.get("/job/:jobId", async (req: Request, res: Response) => {
-  //     try {
-  //       const { jobId } = req.params;
-  //       const status = await EmailController.getJobStatus(jobId);
-
-  //       if (status.status === "not_found") {
-  //         return res.status(404).json({
-  //           success: false,
-  //           error: "Job não encontrado",
-  //         });
-  //       }
-
-  //       res.json({
-  //         success: true,
-  //         data: status,
-  //       });
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // GET emails/job/:jobId
+  app.get(
+    "/job/:jobId",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.getJobStatus
+  );
 
   //   /**
   //    * GET /api/emails/jobs/active
