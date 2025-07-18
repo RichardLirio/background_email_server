@@ -82,7 +82,7 @@ export class EmailController {
       const errorMessage =
         error instanceof Error ? error.message : "Erro desconhecido";
       console.error("❌ Erro ao adicionar lote:", errorMessage);
-      throw new HttpError(`Falha ao adicionar lote: ${errorMessage}`, 409);
+      throw new HttpError(`Falha ao adicionar lote: ${errorMessage}`, 400);
     }
   }
 
@@ -151,7 +151,7 @@ export class EmailController {
       return reply.code(200).send(response);
     } catch (error) {
       console.error("❌ Erro ao obter jobs ativos:", error);
-      throw new Error("Erro ao consultar jobs ativos");
+      throw new HttpError("Erro ao consultar jobs ativos", 400);
     }
   }
 
@@ -190,7 +190,7 @@ export class EmailController {
       return reply.code(200).send(response);
     } catch (error) {
       console.error("❌ Erro ao cancelar job:", error);
-      throw new Error("Erro ao cancelar job");
+      throw new HttpError("Erro ao cancelar job", 400);
     }
   }
 
@@ -233,29 +233,29 @@ export class EmailController {
       return reply.code(200).send(response);
     } catch (error) {
       console.error("❌ Erro ao obter estatísticas:", error);
-      throw new Error("Erro ao consultar estatísticas");
+      throw new HttpError("Erro ao consultar estatísticas", 400);
     }
   }
 
   //  Pausa a fila
+  async pauseQueue(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      await emailBatchQueue.pause();
+      console.log("⏸️ Fila pausada");
 
-  // static async pauseQueue(): Promise<{ success: boolean; message: string }> {
-  //   try {
-  //     await emailBatchQueue.pause();
-  //     console.log("⏸️ Fila pausada");
-  //     return {
-  //       success: true,
-  //       message: "Fila pausada com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao pausar fila:", error);
-  //     throw new Error("Erro ao pausar fila");
-  //   }
-  // }
+      const response: SuccessResponse = {
+        success: true,
+        message: `⏸️ Fila pausada com sucesso`,
+      };
 
-  // /**
-  //  * Retoma a fila
-  //  */
+      return reply.status(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao pausar fila:", error);
+      throw new HttpError("Erro ao pausar fila", 400);
+    }
+  }
+
+  //  Retoma a fila
   // static async resumeQueue(): Promise<{ success: boolean; message: string }> {
   //   try {
   //     await emailBatchQueue.resume();

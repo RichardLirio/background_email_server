@@ -41,23 +41,13 @@ export async function mailRoutes(app: FastifyInstance) {
   // Obtém estatísticas gerais
   app.get("/stats", emailController.getStats);
 
-  //   /**
-  //    * POST /api/emails/queue/pause
-  //    * Pausa a fila
-  //    */
-  //   router.post("/queue/pause", async (req: Request, res: Response) => {
-  //     try {
-  //       const result = await EmailController.pauseQueue();
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // POST /api/emails/queue/pause
+  //  Pausa a fila
+  app.post(
+    "/queue/pause",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.pauseQueue
+  );
 
   //   /**
   //    * POST /api/emails/queue/resume
