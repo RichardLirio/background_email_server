@@ -3,138 +3,65 @@ import { EmailController } from "../controllers/mail.controller";
 
 export async function mailRoutes(app: FastifyInstance) {
   const emailController = new EmailController();
-
-  //Adiciona um lote de emails à fila
+  // POST /emails/batch
+  // Adiciona um lote de emails à fila
   app.post(
     "/batch",
     { preHandler: app.auth([app.authenticate!]) },
     emailController.addBatch
   );
 
-  // GET emails/job/:jobId
+  // GET /emails/job/:jobId
+  // Captura estatus do job pelo id
   app.get(
     "/job/:jobId",
     { preHandler: app.auth([app.authenticate!]) },
     emailController.getJobStatus
   );
 
-  //   /**
-  //    * GET /api/emails/jobs/active
-  //    * Lista jobs ativos
-  //    */
-  //   router.get("/jobs/active", async (req: Request, res: Response) => {
-  //     try {
-  //       const activeJobs = await EmailController.getActiveJobs();
-  //       res.json({
-  //         success: true,
-  //         data: activeJobs,
-  //       });
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // GET /emails/jobs/active
+  // Lista jobs ativos
 
-  //   /**
-  //    * DELETE /api/emails/job/:jobId
-  //    * Cancela um job
-  //    */
-  //   router.delete("/job/:jobId", async (req: Request, res: Response) => {
-  //     try {
-  //       const { jobId } = req.params;
-  //       const result = await EmailController.cancelJob(jobId);
+  app.get(
+    "/jobs/active",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.getActiveJobs
+  );
 
-  //       if (!result.success) {
-  //         return res.status(400).json(result);
-  //       }
+  // DELETE /emails/job/:jobId
+  // Cancela um job
 
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  app.delete(
+    "/job/:jobId",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.cancelJob
+  );
 
-  //   /**
-  //    * GET /api/emails/stats
-  //    * Obtém estatísticas gerais
-  //    */
-  //   router.get("/stats", async (req: Request, res: Response) => {
-  //     try {
-  //       const stats = await EmailController.getStats();
-  //       res.json({
-  //         success: true,
-  //         data: stats,
-  //       });
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // GET /emails/stats
+  // Obtém estatísticas gerais
+  app.get("/stats", emailController.getStats);
 
-  //   /**
-  //    * POST /api/emails/queue/pause
-  //    * Pausa a fila
-  //    */
-  //   router.post("/queue/pause", async (req: Request, res: Response) => {
-  //     try {
-  //       const result = await EmailController.pauseQueue();
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // POST /emails/queue/pause
+  //  Pausa a fila
+  app.post(
+    "/queue/pause",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.pauseQueue
+  );
 
-  //   /**
-  //    * POST /api/emails/queue/resume
-  //    * Retoma a fila
-  //    */
-  //   router.post("/queue/resume", async (req: Request, res: Response) => {
-  //     try {
-  //       const result = await EmailController.resumeQueue();
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // POST /emails/queue/resume
+  // Retoma a fila
+  app.post(
+    "/queue/resume",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.resumeQueue
+  );
 
-  //   /**
-  //    * POST /api/emails/cleanup
-  //    * Força limpeza de jobs antigos
-  //    */
-  //   router.post("/cleanup", async (req: Request, res: Response) => {
-  //     try {
-  //       const result = await EmailController.cleanupJobs();
-  //       res.json(result);
-  //     } catch (error) {
-  //       const errorMessage =
-  //         error instanceof Error ? error.message : "Erro interno do servidor";
-  //       res.status(500).json({
-  //         success: false,
-  //         error: errorMessage,
-  //       });
-  //     }
-  //   });
+  // POST /emails/cleanup
+  // Força limpeza de jobs antigos
+  app.post(
+    "/cleanup",
+    { preHandler: app.auth([app.authenticate!]) },
+    emailController.cleanupJobs
+  );
 }

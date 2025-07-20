@@ -10,6 +10,7 @@ import {
 } from "../schemas/mail.schemas";
 import { HttpError } from "../utils/http-error";
 import { SuccessResponse } from "../@types/response";
+import { emailProcessor } from "../jobs/mail.processor";
 
 export class EmailController {
   // Adiciona um lote de emails à fila com prioridade normal
@@ -81,7 +82,7 @@ export class EmailController {
       const errorMessage =
         error instanceof Error ? error.message : "Erro desconhecido";
       console.error("❌ Erro ao adicionar lote:", errorMessage);
-      throw new HttpError(`Falha ao adicionar lote: ${errorMessage}`, 409);
+      throw new HttpError(`Falha ao adicionar lote: ${errorMessage}`, 400);
     }
   }
 
@@ -128,177 +129,162 @@ export class EmailController {
     }
   }
 
-  // /**
-  //  * Lista jobs ativos
-  //  */
-  // static async getActiveJobs(): Promise<
-  //   Array<{
-  //     id: string;
-  //     batchId: string;
-  //     progress: number;
-  //     totalEmails: number;
-  //     createdAt: string;
-  //   }>
-  // > {
-  //   try {
-  //     const activeJobs = await emailBatchQueue.getActive();
+  //Lista jobs ativos
+  async getActiveJobs(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      const activeJobs = await emailBatchQueue.getActive();
 
-  //     return activeJobs.map((job) => ({
-  //       id: String(job.id),
-  //       batchId: job.data.batchId,
-  //       progress: job.progress(),
-  //       totalEmails: job.data.emails.length,
-  //       createdAt: new Date(job.timestamp).toISOString(),
-  //     }));
-  //   } catch (error) {
-  //     console.error("❌ Erro ao obter jobs ativos:", error);
-  //     throw new Error("Erro ao consultar jobs ativos");
-  //   }
-  // }
+      const response: SuccessResponse = {
+        success: true,
+        message: `📤 Lista de Jobs ativos encontrada com sucesso.`,
+        data: {
+          activeJobs: activeJobs.map((job) => ({
+            id: String(job.id),
+            batchId: job.data.batchId,
+            progress: job.progress(),
+            totalEmails: job.data.emails.length,
+            createdAt: new Date(job.timestamp).toISOString(),
+          })),
+        },
+      };
 
-  // /**
-  //  * Cancela um job
-  //  */
-  // static async cancelJob(jobId: string): Promise<{
-  //   success: boolean;
-  //   message: string;
-  // }> {
-  //   try {
-  //     const job = await emailBatchQueue.getJob(jobId);
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao obter jobs ativos:", error);
+      throw new HttpError("Erro ao consultar jobs ativos", 400);
+    }
+  }
 
-  //     if (!job) {
-  //       return {
-  //         success: false,
-  //         message: "Job não encontrado",
-  //       };
-  //     }
+  // Cancela um Job
+  async cancelJob(request: FastifyRequest, reply: FastifyReply) {
+    const { jobId } = jobParamsId.parse(request.params) as JobParamId;
 
-  //     const state = await job.getState();
+    try {
+      const job = await emailBatchQueue.getJob(jobId);
 
-  //     if (state === "completed") {
-  //       return {
-  //         success: false,
-  //         message: "Job já foi completado",
-  //       };
-  //     }
+      if (!job) {
+        throw new HttpError("Job não encontrado", 404);
+      }
 
-  //     if (state === "active") {
-  //       return {
-  //         success: false,
-  //         message: "Job está sendo processado e não pode ser cancelado",
-  //       };
-  //     }
+      const state = await job.getState();
 
-  //     await job.remove();
-  //     console.log(`🗑️ Job ${jobId} cancelado`);
+      if (state === "completed") {
+        throw new HttpError("Job já foi completado", 400);
+      }
 
-  //     return {
-  //       success: true,
-  //       message: "Job cancelado com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao cancelar job:", error);
-  //     throw new Error("Erro ao cancelar job");
-  //   }
-  // }
+      if (state === "active") {
+        throw new HttpError(
+          "Job está sendo processado e não pode ser cancelado",
+          400
+        );
+      }
 
-  // /**
-  //  * Obtém estatísticas gerais
-  //  */
-  // static async getStats(): Promise<{
-  //   processor: unknown;
-  //   recentJobs: Array<{
-  //     id: string;
-  //     batchId: string;
-  //     status: string;
-  //     totalEmails: number;
-  //     result?: unknown;
-  //     createdAt: string;
-  //     finishedAt?: string;
-  //   }>;
-  // }> {
-  //   try {
-  //     const processorStats = await emailProcessor.getStats();
+      await job.remove();
+      console.log(`🗑️ Job ${jobId} cancelado`);
 
-  //     // Obter jobs recentes (últimos 10 completos)
-  //     const recentCompleted = await emailBatchQueue.getCompleted(0, 9);
-  //     const recentFailed = await emailBatchQueue.getFailed(0, 9);
+      const response: SuccessResponse = {
+        success: true,
+        message: `🗑️ Job ${jobId} cancelado com sucesso.`,
+      };
 
-  //     const recentJobs = [...recentCompleted, ...recentFailed]
-  //       .sort(
-  //         (a, b) =>
-  //           (b.finishedOn || b.timestamp) - (a.finishedOn || a.timestamp)
-  //       )
-  //       .slice(0, 10)
-  //       .map((job) => ({
-  //         id: String(job.id),
-  //         batchId: job.data.batchId,
-  //         status: job.finishedOn ? "completed" : "failed",
-  //         totalEmails: job.data.emails.length,
-  //         result: job.returnvalue,
-  //         createdAt: new Date(job.timestamp).toISOString(),
-  //         finishedAt: job.finishedOn
-  //           ? new Date(job.finishedOn).toISOString()
-  //           : undefined,
-  //       }));
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao cancelar job:", error);
+      throw new HttpError("Erro ao cancelar job", 400);
+    }
+  }
 
-  //     return {
-  //       processor: processorStats,
-  //       recentJobs,
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao obter estatísticas:", error);
-  //     throw new Error("Erro ao consultar estatísticas");
-  //   }
-  // }
+  //  Obtém estatísticas gerais
+  async getStats(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const processorStats = await emailProcessor.getStats();
 
-  // /**
-  //  * Pausa a fila
-  //  */
-  // static async pauseQueue(): Promise<{ success: boolean; message: string }> {
-  //   try {
-  //     await emailBatchQueue.pause();
-  //     console.log("⏸️ Fila pausada");
-  //     return {
-  //       success: true,
-  //       message: "Fila pausada com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao pausar fila:", error);
-  //     throw new Error("Erro ao pausar fila");
-  //   }
-  // }
+      // Obter jobs recentes (últimos 10 completos)
+      const recentCompleted = await emailBatchQueue.getCompleted(0, 9);
+      const recentFailed = await emailBatchQueue.getFailed(0, 9);
 
-  // /**
-  //  * Retoma a fila
-  //  */
-  // static async resumeQueue(): Promise<{ success: boolean; message: string }> {
-  //   try {
-  //     await emailBatchQueue.resume();
-  //     console.log("▶️ Fila retomada");
-  //     return {
-  //       success: true,
-  //       message: "Fila retomada com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro ao retomar fila:", error);
-  //     throw new Error("Erro ao retomar fila");
-  //   }
-  // }
+      const recentJobs = [...recentCompleted, ...recentFailed]
+        .sort(
+          (a, b) =>
+            (b.finishedOn || b.timestamp) - (a.finishedOn || a.timestamp)
+        )
+        .slice(0, 10)
+        .map((job) => ({
+          id: String(job.id),
+          batchId: job.data.batchId,
+          status: job.finishedOn ? "completed" : "failed",
+          totalEmails: job.data.emails.length,
+          result: job.returnvalue,
+          createdAt: new Date(job.timestamp).toISOString(),
+          finishedAt: job.finishedOn
+            ? new Date(job.finishedOn).toISOString()
+            : undefined,
+        }));
 
-  // /**
-  //  * Força limpeza de jobs antigos
-  //  */
-  // static async cleanupJobs(): Promise<{ success: boolean; message: string }> {
-  //   try {
-  //     await emailProcessor.forceCleanup();
-  //     return {
-  //       success: true,
-  //       message: "Limpeza executada com sucesso",
-  //     };
-  //   } catch (error) {
-  //     console.error("❌ Erro na limpeza:", error);
-  //     throw new Error("Erro ao executar limpeza");
-  //   }
-  // }
+      const response: SuccessResponse = {
+        success: true,
+        message: `🎲 Estatísticas gerais`,
+        data: {
+          processor: processorStats,
+          recentJobs,
+        },
+      };
+
+      return reply.code(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao obter estatísticas:", error);
+      throw new HttpError("Erro ao consultar estatísticas", 400);
+    }
+  }
+
+  //  Pausa a fila
+  async pauseQueue(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      await emailBatchQueue.pause();
+      console.log("⏸️ Fila pausada");
+
+      const response: SuccessResponse = {
+        success: true,
+        message: `⏸️ Fila pausada com sucesso`,
+      };
+
+      return reply.status(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao pausar fila:", error);
+      throw new HttpError("Erro ao pausar fila", 400);
+    }
+  }
+
+  //  Retoma a fila
+  async resumeQueue(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      await emailBatchQueue.resume();
+      console.log("▶️ Fila retomada");
+
+      const response: SuccessResponse = {
+        success: true,
+        message: "▶️ Fila retomada com sucesso",
+      };
+      return reply.status(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro ao retomar fila:", error);
+      throw new HttpError("Erro ao retomar fila", 400);
+    }
+  }
+
+  // Força limpeza de jobs antigos
+  async cleanupJobs(_: FastifyRequest, reply: FastifyReply) {
+    try {
+      await emailProcessor.forceCleanup();
+
+      const response: SuccessResponse = {
+        success: true,
+        message: "🧹 Limpeza executada com sucesso",
+      };
+      return reply.status(200).send(response);
+    } catch (error) {
+      console.error("❌ Erro na limpeza:", error);
+      throw new HttpError("Erro ao executar limpeza", 400);
+    }
+  }
 }

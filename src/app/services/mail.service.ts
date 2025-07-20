@@ -36,7 +36,6 @@ export class EmailService {
   }
 
   // Marca email como enviado no cache
-
   static async markEmailAsSent(idempotencyKey: string): Promise<void> {
     try {
       await redis.setex(
