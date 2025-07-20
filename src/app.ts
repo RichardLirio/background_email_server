@@ -145,7 +145,7 @@ async function registerBullBoard(app: FastifyInstance) {
     prefix: "/admin/queues",
   });
 
-  console.log("📊 Bull Board configurado com sucesso");
+  app.log.info("Bull Board configurado com sucesso");
 }
 
 async function registerRoutes(app: FastifyInstance) {
