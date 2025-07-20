@@ -1,4 +1,4 @@
 .env
 /dist
 node_modules
-clients.json
+/src/data/data.json
