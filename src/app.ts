@@ -11,6 +11,10 @@ import jwt from "jsonwebtoken";
 import { authRoutes } from "./app/routes/auth.routes";
 import { getClients } from "./data/clients";
 import { mailRoutes } from "./app/routes/mail.routes";
+import { createBullBoard } from "@bull-board/api";
+import { BullAdapter } from "@bull-board/api/bullAdapter";
+import { emailBatchQueue } from "./app/libs/queue";
+import { FastifyAdapter } from "@bull-board/fastify";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
@@ -37,6 +41,9 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // Registrar rotas
   await registerRoutes(app);
+
+  // bull board
+  await registerBullBoard(app);
 
   return app;
 }
@@ -108,6 +115,37 @@ async function registerPlugins(app: FastifyInstance) {
       }
     }
   );
+}
+
+async function registerBullBoard(app: FastifyInstance) {
+  const serverAdapter = new FastifyAdapter();
+  createBullBoard({
+    queues: [
+      new BullAdapter(emailBatchQueue, {
+        readOnlyMode: false,
+        allowRetries: true,
+        description: "Fila de processamento de emails em lote",
+      }),
+    ],
+    serverAdapter: serverAdapter,
+    options: {
+      uiConfig: {
+        boardTitle: "Email Processor Dashboard",
+        miscLinks: [
+          {
+            text: "Homepage",
+            url: "/",
+          },
+        ],
+      },
+    },
+  });
+
+  await app.register(serverAdapter.registerPlugin(), {
+    prefix: "/admin/queues",
+  });
+
+  console.log("📊 Bull Board configurado com sucesso");
 }
 
 async function registerRoutes(app: FastifyInstance) {

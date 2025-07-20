@@ -1,7 +1,7 @@
 {
   "name": "EmailBackgroundJobs",
   "version": "1.0.0",
-  "description": "",
+  "description": "Servidor para envio de email em lotes em background jobs",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -35,6 +35,9 @@
     "zod": "^3.25.75"
   },
   "dependencies": {
+    "@bull-board/api": "^6.11.1",
+    "@bull-board/fastify": "^6.11.1",
+    "@bull-board/ui": "^6.11.1",
     "@fastify/auth": "^5.0.2",
     "@fastify/bearer-auth": "^10.1.1",
     "@fastify/cors": "^11.0.1",
