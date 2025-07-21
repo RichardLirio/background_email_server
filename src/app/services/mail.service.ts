@@ -89,8 +89,8 @@ export class EmailService {
   static async proccessHtml(name: string) {
     const htmlPath =
       env.NODE_ENV === "development"
-        ? path.resolve(__dirname, "../../../public/", "example.html")
-        : path.resolve(__dirname, "../public/", "example.html");
+        ? path.resolve(__dirname, "../../../public/", "index.html")
+        : path.resolve(__dirname, "../public/", "index.html");
 
     const htmlContent = fs.readFileSync(htmlPath, "utf-8");
     const finalHtml = htmlContent.replace("{{client_name}}", name);

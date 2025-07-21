@@ -1,7 +1,7 @@
 import { env } from "@/env";
 import fs from "node:fs/promises";
 import path from "node:path";
-//path.resolve(__dirname, "../public/", "example.html");
+
 export async function FileExist() {
   const filePath =
     env.NODE_ENV === "development"
