@@ -1,7 +1,7 @@
+import { getClients } from "../../data/clients";
+import { env } from "../../env";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { env } from "@/env";
-import { getClients } from "@/data/clients";
 
 export async function authenticate(client_id: string, client_secret: string) {
   const clients = await getClients();

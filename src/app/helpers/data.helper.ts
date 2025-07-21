@@ -1,10 +1,16 @@
+import { env } from "@/env";
 import fs from "node:fs/promises";
+import path from "node:path";
 
-export async function FileExist(file: string) {
+export async function FileExist() {
+  const filePath =
+    env.NODE_ENV === "development"
+      ? path.resolve(__dirname, "../../data/", "data.json")
+      : __dirname + "/data/data.json";
   try {
-    await fs.access(file, fs.constants.F_OK);
+    await fs.access(filePath, fs.constants.F_OK);
   } catch {
-    await fs.writeFile("./src/data/data.json", JSON.stringify([], null, 2)); //cria o arquivo json usado como banco de dados
+    await fs.writeFile(filePath, JSON.stringify([], null, 2)); //cria o arquivo json usado como banco de dados
     console.info("💾 Arquivo Json Criado com sucesso");
   }
 }

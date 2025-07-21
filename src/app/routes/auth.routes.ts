@@ -1,5 +1,5 @@
-import { AuthController } from "@/app/controllers/auth.controller";
 import { FastifyInstance } from "fastify";
+import { AuthController } from "../controllers/auth.controller";
 
 export async function authRoutes(app: FastifyInstance) {
   const authController = new AuthController();

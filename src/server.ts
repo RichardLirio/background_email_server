@@ -35,7 +35,7 @@ class Server {
 
   async start() {
     try {
-      await FileExist("./src/data/data.json");
+      await FileExist();
       if (!this.app) {
         await this.initialize();
       }
@@ -48,10 +48,9 @@ class Server {
         port: env.PORT,
         host: env.HOST,
       });
-
-      this.app.log.info(`Servidor rodando em http://${env.HOST}:${env.PORT}`);
-      this.app.log.info(`Health check: http://${env.HOST}:${env.PORT}/health`);
-      this.app.log.info(`Ambiente: ${env.NODE_ENV}`);
+      console.log(`🆗 Servidor rodando em http://${env.HOST}:${env.PORT}`);
+      console.log(`🧪 Health check: http://${env.HOST}:${env.PORT}/health`);
+      console.log(`💡 Ambiente: ${env.NODE_ENV}`);
     } catch (error) {
       console.error("Erro ao iniciar servidor:", error);
       process.exit(1);

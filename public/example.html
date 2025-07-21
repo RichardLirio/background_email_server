@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faturamento - HM Informática</title>
+    <title>{{email_title}} - {{company_name}}</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -15,6 +15,20 @@
     </noscript>
     <![endif]-->
     <style>
+        /* CSS Variables for easy customization */
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --text-color: #333333;
+            --text-light: #555555;
+            --text-muted: #b8c1ca;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --highlight-background: #f0f8ff;
+            --border-color: #e3e3e3;
+            --footer-background: #2c3e50;
+        }
+        
         /* Reset básico */
         * {
             margin: 0;
@@ -24,8 +38,8 @@
         
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333333;
+            background-color: var(--background-color);
+            color: var(--text-color);
             line-height: 1.6;
             margin: 0;
             padding: 0;
@@ -44,14 +58,14 @@
         /* Container principal */
         .email-wrapper {
             width: 100%;
-            background-color: #f5f5f5;
+            background-color: var(--background-color);
             padding: 20px 0;
         }
         
         .email-container {
             width: 600px;
             margin: 0 auto;
-            background-color: #ffffff;
+            background-color: var(--card-background);
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(67, 67, 67, 0.1);
@@ -59,7 +73,7 @@
         
         /* Header */
         .header {
-            background-color: #e74c3c;
+            background-color: var(--primary-color);
             padding: 30px 20px;
             text-align: center;
         }
@@ -89,34 +103,34 @@
         .greeting {
             font-size: 18px;
             margin-bottom: 20px;
-            color: #b8c1ca;
+            color: var(--text-muted);
         }
         
         .message {
             font-size: 16px;
             line-height: 1.8;
             margin-bottom: 30px;
-            color: #555555;
+            color: var(--text-light);
         }
         
         /* Highlight box */
         .highlight-box {
-            background-color: #fdf2f2;
-            border: 1px solid #e74c3c;
-            border-left: 4px solid #e74c3c;
+            background-color: var(--highlight-background);
+            border: 1px solid var(--primary-color);
+            border-left: 4px solid var(--primary-color);
             padding: 20px;
             margin: 25px 0;
             border-radius: 4px;
         }
         
         .highlight-box h3 {
-            color: #2c3e50;
+            color: var(--text-color);
             margin-bottom: 10px;
             font-size: 18px;
         }
         
         .highlight-box p {
-            color: #555555;
+            color: var(--text-light);
             margin: 0;
         }
         
@@ -128,7 +142,7 @@
         
         .cta-button {
             display: inline-block;
-            background-color: #e74c3c;
+            background-color: var(--primary-color);
             color: #ffffff;
             padding: 15px 30px;
             text-decoration: none;
@@ -138,7 +152,7 @@
         }
         
         .cta-button:hover {
-            background-color: #c0392b;
+            background-color: var(--primary-dark);
         }
         
         /* Info table */
@@ -151,12 +165,12 @@
             width: 50%;
             padding: 15px;
             background-color: #f8f9fa;
-            border-left: 3px solid #e74c3c;
+            border-left: 3px solid var(--primary-color);
             vertical-align: top;
         }
         
         .info-item h4 {
-            color: #2c3e50;
+            color: var(--text-color);
             margin-bottom: 5px;
             font-size: 12px;
             text-transform: uppercase;
@@ -173,7 +187,7 @@
         /* Divider */
         .divider {
             height: 2px;
-            background-color: #e74c3c;
+            background-color: var(--primary-color);
             margin: 30px 0;
         }
         
@@ -184,17 +198,17 @@
         }
         
         .signature strong {
-            color: #333333;
+            color: var(--text-color);
         }
         
         .signature .company-name {
-            color: #e74c3c;
+            color: var(--primary-color);
             font-weight: bold;
         }
         
         /* Footer */
         .footer {
-            background-color: #2c3e50;
+            background-color: var(--footer-background);
             color: #ffffff;
             text-align: center;
             padding: 25px 20px;
@@ -205,7 +219,7 @@
         }
         
         .footer-links a {
-            color: #e74c3c;
+            color: var(--primary-color);
             text-decoration: none;
             margin: 0 10px;
             font-size: 14px;
@@ -284,8 +298,8 @@
         <div class="email-container">
             <!-- Header -->
             <div class="header">
-                <img src="https://hm.inf.br/imagens/HMtimbre1c.png" alt="HM Informática" class="logo">
-                <h1>Arquivo Eletrônico de Faturamento</h1>
+                <img src="{{company_logo_url}}" alt="{{company_name}}" class="logo">
+                <h1>{{email_subject}}</h1>
             </div>
             
             <!-- Content -->
@@ -295,37 +309,32 @@
                 </div>
                 
                 <div class="message">
-                    Você está recebendo o faturamento referente aos serviços de informática prestados por nossa empresa. 
-                    Verifique se consta anexado o boleto de pagamento para efetuar o pagamento dentro do prazo de vencimento.
+                    {{main_message}}
                 </div>
                 
                 <div class="highlight-box">
-                    <h3>📋 Instruções Importantes</h3>
-                    <p>
-                        • Verifique o boleto anexado neste email<br>
-                        • Confira a data de vencimento<br>
-                        • Em caso de dúvidas, entre em contato conosco
-                    </p>
+                    <h3>{{highlight_icon}} {{highlight_title}}</h3>
+                    <p>{{highlight_content}}</p>
                 </div>
                 
                 <!-- Info Table -->
                 <table class="info-table">
                     <tr>
                         <td class="info-item">
-                            <h4>Telefone</h4>
-                            <p>(27) 3722-6990</p>
+                            <h4>{{contact_label_1}}</h4>
+                            <p>{{contact_value_1}}</p>
                         </td>
                         <td class="info-item">
-                            <h4>Website</h4>
-                            <p>www.hm.inf.br</p>
+                            <h4>{{contact_label_2}}</h4>
+                            <p>{{contact_value_2}}</p>
                         </td>
                     </tr>
                 </table>
                 
                 <!-- Button -->
                 <div class="button-container">
-                    <a href="mailto:contato@hm.inf.br" class="cta-button">
-                        💬 Fale Conosco
+                    <a href="{{cta_link}}" class="cta-button">
+                        {{cta_icon}} {{cta_text}}
                     </a>
                 </div>
                 
@@ -334,21 +343,21 @@
                 
                 <!-- Signature -->
                 <div class="signature">
-                    <p><strong>Atenciosamente,</strong><br>
-                    <span class="company-name">HM Informática</span></p>
+                    <p><strong>{{signature_closing}}</strong><br>
+                    <span class="company-name">{{company_name}}</span></p>
                 </div>
             </div>
             
             <!-- Footer -->
             <div class="footer">
                 <div class="footer-links">
-                    <a href="https://www.hm.inf.br">Site Oficial</a>
-                    <a href="mailto:contato@hm.inf.br">Contato</a>
-                    <a href="tel:2737226990">Telefone</a>
+                    <a href="{{website_url}}">{{website_label}}</a>
+                    <a href="{{contact_url}}">{{contact_label}}</a>
+                    <a href="{{phone_url}}">{{phone_label}}</a>
                 </div>
                 <div class="footer-text">
-                    Desenvolvimento HM Tecnologia e Sistemas<br>
-                    © 2024 HM Informática - Todos os direitos reservados
+                    {{footer_description}}<br>
+                    © {{current_year}} {{company_name}} - {{footer_rights}}
                 </div>
             </div>
         </div>
@@ -359,5 +368,60 @@
         </table>
         <![endif]-->
     </div>
+
+    <!-- GUIA DE PERSONALIZAÇÃO -->
+    <!-- 
+    ==========================================
+    COMO PERSONALIZAR ESTE TEMPLATE:
+    ==========================================
+    
+    1. CORES (altere no :root no CSS):
+       - primary-color: Cor principal da empresa
+       - primary-dark: Versão mais escura da cor principal
+       - text-color: Cor do texto principal
+       - background-color: Cor de fundo
+    
+    2. VARIÁVEIS DE CONTEÚDO (substitua os valores):
+       - {{company_name}} = Nome da empresa
+       - {{company_logo_url}} = URL do logo da empresa
+       - {{email_title}} = Título do email (ex: "Faturamento")
+       - {{email_subject}} = Assunto do email (ex: "Arquivo Eletrônico de Faturamento")
+       - {{client_name}} = Nome do cliente
+       - {{main_message}} = Mensagem principal do email
+       - {{highlight_icon}} = Ícone da caixa de destaque (ex: 📋, 💰, 📊)
+       - {{highlight_title}} = Título da caixa de destaque
+       - {{highlight_content}} = Conteúdo da caixa de destaque
+       - {{contact_label_1}} = Rótulo do primeiro contato (ex: "Telefone")
+       - {{contact_value_1}} = Valor do primeiro contato
+       - {{contact_label_2}} = Rótulo do segundo contato (ex: "Website")
+       - {{contact_value_2}} = Valor do segundo contato
+       - {{cta_icon}} = Ícone do botão (ex: 💬, 📧, 📞)
+       - {{cta_text}} = Texto do botão
+       - {{cta_link}} = Link do botão
+       - {{signature_closing}} = Fechamento da assinatura (ex: "Atenciosamente")
+       - {{website_url}} = URL do site
+       - {{website_label}} = Texto do link do site
+       - {{contact_url}} = URL de contato
+       - {{contact_label}} = Texto do link de contato
+       - {{phone_url}} = URL do telefone
+       - {{phone_label}} = Texto do link do telefone
+       - {{footer_description}} = Descrição no rodapé
+       - {{current_year}} = Ano atual
+       - {{footer_rights}} = Texto de direitos autorais
+    
+    3. EXEMPLO DE PERSONALIZAÇÃO PARA UMA EMPRESA DE CONSULTORIA:
+       - primary-color: #2ecc71 (verde)
+       - company_name: "Consultoria ABC"
+       - email_subject: "Proposta Comercial"
+       - highlight_title: "Próximos Passos"
+       - cta_text: "Agendar Reunião"
+    
+    4. EXEMPLO PARA EMPRESA DE TECNOLOGIA:
+       - primary-color: #9b59b6 (roxo)
+       - company_name: "TechSolutions"
+       - email_subject: "Relatório de Performance"
+       - highlight_title: "Métricas Importantes"
+       - cta_text: "Ver Dashboard"
+    -->
 </body>
 </html>
