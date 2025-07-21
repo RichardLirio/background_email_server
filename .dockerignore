@@ -56,3 +56,5 @@ docs/
 
 # Husky/lint
 .husky
+
+*data.json

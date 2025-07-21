@@ -11,7 +11,7 @@
     "worker": "node dist/worker.js",
     "worker:dev": "tsx watch src/worker.ts",
     "start": "node dist/server.js",
-    "prepare": "husky",
+    "prepare": "is-ci || husky",
     "check": "eslint . --ext .ts",
     "check:fix": "eslint . --ext .ts  --fix"
   },
@@ -29,6 +29,7 @@
     "eslint": "^9.31.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
+    "is-ci": "^4.1.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
