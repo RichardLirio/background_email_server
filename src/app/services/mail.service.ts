@@ -4,6 +4,7 @@ import { redis } from "../libs/queue";
 import { EmailData } from "../schemas/mail.schemas";
 import fs from "fs";
 import path from "path";
+import { env } from "@/env";
 
 export class EmailService {
   private static readonly IDEMPOTENCY_PREFIX = "email:sent:";
@@ -85,9 +86,12 @@ export class EmailService {
   }
 
   // Preparar Html para o cliente
-
   static async proccessHtml(name: string) {
-    const htmlPath = path.resolve(__dirname, "../../..", "example.html");
+    const htmlPath =
+      env.NODE_ENV === "development"
+        ? path.resolve(__dirname, "../../../public/", "example.html")
+        : path.resolve(__dirname, "../public/", "example.html");
+
     const htmlContent = fs.readFileSync(htmlPath, "utf-8");
     const finalHtml = htmlContent.replace("{{client_name}}", name);
 

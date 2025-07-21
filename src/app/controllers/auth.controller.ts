@@ -1,9 +1,9 @@
-import { SuccessResponse } from "@/app/@types/response";
-import { addClient } from "@/data/clients";
-import { AuthInput, authSchema } from "@/app/schemas/auth.schemas";
-import { RegisterInput, registerSchema } from "@/app/schemas/register.schemas";
-import { authenticate } from "@/app/services/auth.service";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { AuthInput, authSchema } from "../schemas/auth.schemas";
+import { authenticate } from "../services/auth.service";
+import { SuccessResponse } from "../@types/response";
+import { RegisterInput, registerSchema } from "../schemas/register.schemas";
+import { addClient } from "../../data/clients";
 
 export class AuthController {
   async auth(request: FastifyRequest, reply: FastifyReply) {

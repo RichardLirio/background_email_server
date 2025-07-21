@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { hash } from "bcrypt";
 import { randomUUID } from "crypto";
+import { env } from "@/env";
 
 interface Client {
   id: string;
@@ -10,8 +11,10 @@ interface Client {
   active: boolean;
   scopes: string[];
 }
-
-const filePath = path.resolve(__dirname, "data.json");
+const filePath =
+  env.NODE_ENV === "development"
+    ? path.resolve(__dirname, "../data/", "data.json")
+    : __dirname + "/data/data.json";
 
 export async function getClients() {
   const rawData = fs.readFileSync(filePath, "utf-8");

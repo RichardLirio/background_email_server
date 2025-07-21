@@ -20,7 +20,7 @@ POST {{baseUrl}}/api/v1/auth/token
 Content-Type: application/json
 
 {
-    "client_id": "56ec30b9-1242-4b0e-8f29-6f2ed783b193",
+    "client_id": "63a80484-98a0-4f42-affc-7dd01e063268",
     "client_secret":"Admin@103256"
 }
 
