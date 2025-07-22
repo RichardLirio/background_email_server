@@ -54,7 +54,6 @@ export class EmailService {
   }
 
   // Valida dados do email
-
   static validateEmailData(emailData: EmailData): {
     isValid: boolean;
     errors: string[];
@@ -120,9 +119,10 @@ export class EmailService {
           `📧 Email para ${emailData.to.email} já enviado recentemente (pulando)`
         );
         return {
-          success: true,
+          success: false,
           idempotencyKey,
           skipped: true,
+          error: `📧 Email para ${emailData.to.email} já enviado recentemente (pulando)`,
         };
       }
 
@@ -241,7 +241,6 @@ export class EmailService {
   }
 
   // Obtém estatísticas do cache
-
   static async getCacheStats(): Promise<{
     totalKeys: number;
     memoryUsage: string;

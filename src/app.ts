@@ -131,12 +131,6 @@ async function registerBullBoard(app: FastifyInstance) {
     options: {
       uiConfig: {
         boardTitle: "Email Processor Dashboard",
-        miscLinks: [
-          {
-            text: "Homepage",
-            url: "/",
-          },
-        ],
       },
     },
   });

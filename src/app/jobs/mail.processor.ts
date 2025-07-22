@@ -1,11 +1,12 @@
 import type { Job } from "bull";
 import { BatchEmailJobData, emailBatchQueue } from "../libs/queue";
 import { EmailService } from "../services/mail.service";
+import { JobLogger } from "../helpers/job.logs.helper";
 
 /**
  * Type alias para compatibilidade com Bull
  */
-type BullJob<T = unknown> = Job<T>;
+export type BullJob<T = unknown> = Job<T>;
 
 /**
  * Interface para os resultados do processamento de lote
@@ -54,11 +55,28 @@ interface ProcessorStats {
 }
 
 /**
+ * Configurações para determinar quando um job deve falhar
+ */
+interface FailureConfig {
+  // Falha se todos os emails falharam (padrão: true)
+  failOnAllFailed: boolean;
+  // Falha se a taxa de falha exceder este percentual (padrão: 0.8 = 80%)
+  failureThreshold: number;
+  // Falha se nenhum email foi enviado com sucesso (padrão: true)
+  failOnZeroSent: boolean;
+}
+
+/**
  * Processador principal dos jobs de email
  */
 class EmailProcessor {
   private static instance: EmailProcessor;
   private isProcessing = false;
+  private failureConfig: FailureConfig = {
+    failOnAllFailed: true,
+    failureThreshold: 0.8, // 80% ao falhar marca o job como falho
+    failOnZeroSent: true,
+  };
 
   private constructor() {}
 
@@ -67,6 +85,71 @@ class EmailProcessor {
       EmailProcessor.instance = new EmailProcessor();
     }
     return EmailProcessor.instance;
+  }
+
+  /**
+   * Configura os critérios de falha
+   */
+  setFailureConfig(config: Partial<FailureConfig>): void {
+    this.failureConfig = { ...this.failureConfig, ...config };
+    console.log("⚙️ Configuração de falha atualizada:", this.failureConfig);
+  }
+
+  /**
+   * Determina se um job deve ser marcado como falha baseado nos resultados
+   */
+  private shouldJobFail(results: BatchProcessingResults): boolean {
+    const { total, sent, failed } = results;
+
+    // Se não há emails para processar, não é falha
+    if (total === 0) {
+      return false;
+    }
+
+    // Falha se todos os emails falharam
+    if (this.failureConfig.failOnAllFailed && failed === total) {
+      return true;
+    }
+
+    // Falha se nenhum email foi enviado com sucesso
+    if (this.failureConfig.failOnZeroSent && sent === 0 && total > 0) {
+      return true;
+    }
+
+    // Falha se a taxa de falha exceder o threshold
+    const failureRate = failed / total;
+    if (failureRate > this.failureConfig.failureThreshold) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Cria uma exceção detalhada para jobs que devem falhar
+   */
+  private createJobFailureError(results: BatchProcessingResults): Error {
+    const { batchId, total, sent, failed, errors } = results;
+    const failureRate = ((failed / total) * 100).toFixed(1);
+
+    const details = {
+      batchId,
+      stats: { total, sent, failed, skipped: results.skipped },
+      failureRate: parseFloat(failureRate),
+      errors: errors.slice(0, 10), // Limita a 10 erros para não sobrecarregar logs
+      totalErrors: errors.length,
+      duration: results.duration,
+      timestamp: results.endTime,
+      config: this.failureConfig,
+    };
+
+    const error = new Error(
+      `Batch ${batchId} failed: ${failed}/${total} emails failed (${failureRate}%)\n ${JSON.stringify(
+        details
+      )}`
+    );
+
+    return error;
   }
 
   /**
@@ -93,6 +176,7 @@ class EmailProcessor {
     }, 4 * 60 * 60 * 1000);
 
     console.log("✅ Processador de emails iniciado com sucesso");
+    console.log("⚙️ Configuração de falha:", this.failureConfig);
   }
 
   /**
@@ -103,8 +187,12 @@ class EmailProcessor {
   ): Promise<BatchProcessingResults> {
     const { batchId, emails } = job.data;
     const startTime = Date.now();
+    const logger = new JobLogger(job);
 
     console.log(`📦 Processando lote ${batchId} com ${emails.length} emails`);
+    await logger.info(
+      `📦 Processando lote ${batchId} com ${emails.length} emails`
+    );
 
     try {
       // Atualizar progresso inicial
@@ -129,30 +217,112 @@ class EmailProcessor {
         endTime: new Date(endTime).toISOString(),
       };
 
-      // Log final
-      console.log(`✅ Lote ${batchId} processado em ${duration.toFixed(2)}s:`, {
-        total: results.total,
-        sent: results.sent,
-        skipped: results.skipped,
-        failed: results.failed,
-        errorCount: results.errors.length,
-      });
+      // Verificar se o job deve ser marcado como falha
+      if (this.shouldJobFail(finalResults)) {
+        // Log antes de falhar
+        console.error(`❌ Lote ${batchId} será marcado como falha:`, {
+          total: finalResults.total,
+          sent: finalResults.sent,
+          failed: finalResults.failed,
+          failureRate: `${(
+            (finalResults.failed / finalResults.total) *
+            100
+          ).toFixed(1)}%`,
+          duration: finalResults.duration,
+        });
 
-      // Log erros se houver
-      if (results.errors.length > 0) {
-        console.error(`❌ Erros no lote ${batchId}:`, results.errors);
+        await logger.error(`❌ Lote ${batchId} será marcado como falha:`, {
+          total: finalResults.total,
+          sent: finalResults.sent,
+          failed: finalResults.failed,
+          failureRate: `${(
+            (finalResults.failed / finalResults.total) *
+            100
+          ).toFixed(1)}%`,
+          duration: finalResults.duration,
+        });
+
+        // Log erros detalhados
+        if (finalResults.errors.length > 0) {
+          console.error(
+            `🔍 Primeiros erros do lote ${batchId}:`,
+            finalResults.errors.slice(0, 5)
+          );
+          await logger.error(`🔍 Primeiros erros do lote ${batchId}:`, {
+            errors: finalResults.errors.slice(0, 5),
+          });
+        }
+
+        // Lança exceção para marcar como falha no Bull
+        throw this.createJobFailureError(finalResults);
+      }
+
+      // Log de sucesso (completo ou parcial)
+      if (finalResults.failed > 0) {
+        console.warn(`⚠️ Lote ${batchId} completado com falhas parciais:`, {
+          total: finalResults.total,
+          sent: finalResults.sent,
+          failed: finalResults.failed,
+          duration: finalResults.duration,
+          errors: finalResults.errors,
+        });
+
+        await logger.warn(
+          `⚠️ Lote ${batchId} completado com falhas parciais:`,
+          {
+            total: finalResults.total,
+            sent: finalResults.sent,
+            failed: finalResults.failed,
+            duration: finalResults.duration,
+          }
+        );
+      } else {
+        console.log(
+          `✅ Lote ${batchId} processado com sucesso em ${duration.toFixed(
+            2
+          )}s:`,
+          {
+            total: finalResults.total,
+            sent: finalResults.sent,
+            duration: finalResults.duration,
+          }
+        );
+
+        await logger.success(
+          `✅ Lote ${batchId} processado com sucesso em ${duration.toFixed(
+            2
+          )}s:`,
+          {
+            total: finalResults.total,
+            sent: finalResults.sent,
+            duration: finalResults.duration,
+          }
+        );
       }
 
       return finalResults;
     } catch (error) {
+      // Para outros erros críticos durante processamento
       const errorMessage =
         error instanceof Error ? error.message : "Erro desconhecido";
-      console.error(`💥 Erro crítico no lote ${batchId}:`, errorMessage);
+      console.error(`💥 Erro crítico no lote ${batchId}:`, {
+        error: errorMessage,
+        duration: `${((Date.now() - startTime) / 1000).toFixed(2)}s`,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
 
-      // Re-throw para que o Bull possa tentar novamente
-      throw new Error(
-        `Falha no processamento do lote ${batchId}: ${errorMessage}`
+      await logger.error(`💥 Erro crítico no lote ${batchId}:`, {
+        error: errorMessage,
+        duration: `${((Date.now() - startTime) / 1000).toFixed(2)}s`,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+
+      // Cria erro estruturado para erros críticos
+      const criticalError = new Error(
+        `Falha crítica no processamento do lote ${batchId}: ${errorMessage}`
       );
+
+      throw criticalError;
     }
   }
 
@@ -262,10 +432,45 @@ class EmailProcessor {
   }
 
   /**
+   * Obtém configuração atual de falhas
+   */
+  getFailureConfig(): FailureConfig {
+    return { ...this.failureConfig };
+  }
+
+  /**
    * Força limpeza imediata
    */
   async forceCleanup(): Promise<void> {
     await this.cleanupOldJobs();
+  }
+
+  /**
+   * Obtém detalhes de jobs falhados recentes para análise
+   */
+  async getRecentFailures(limit: number = 10): Promise<
+    Array<{
+      id: string;
+      batchId: string;
+      failedAt: string;
+      error: string;
+    }>
+  > {
+    try {
+      const failedJobs = await emailBatchQueue.getFailed(0, limit - 1);
+
+      return failedJobs.map((job) => ({
+        id: job.id?.toString() || "unknown",
+        batchId: job.data?.batchId || "unknown",
+        failedAt: job.processedOn
+          ? new Date(job.processedOn).toISOString()
+          : "unknown",
+        error: job.failedReason || "Erro desconhecido",
+      }));
+    } catch (error) {
+      console.error("❌ Erro ao obter falhas recentes:", error);
+      return [];
+    }
   }
 }
 

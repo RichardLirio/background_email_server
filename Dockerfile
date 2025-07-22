@@ -9,7 +9,7 @@ RUN npm install -g pnpm && npm cache clean --force
 
 # Cria um usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S expressapp -u 1001
+RUN adduser -S emailsapp -u 1001
 
 # Define o diretório de trabalho
 WORKDIR /app
@@ -28,8 +28,8 @@ RUN pnpm install
 COPY . .
 
 # Ajusta permissões
-RUN chown -R expressapp:nodejs /app
-USER expressapp
+RUN chown -R emailsapp:nodejs /app
+USER emailsapp
 EXPOSE 3333
 CMD ["dumb-init", "pnpm", "run", "dev"]
 
@@ -60,19 +60,19 @@ FROM base AS production
 ENV NODE_ENV=production
 
 # Copia dependências de produção do stage anterior
-COPY --from=production-deps --chown=expressapp:nodejs /app/node_modules ./node_modules
+COPY --from=production-deps --chown=emailsapp:nodejs /app/node_modules ./node_modules
 
 # Copia a pasta public do projeto
-COPY --from=builder --chown=expressapp:nodejs /app/public ./public
+COPY --from=builder --chown=emailsapp:nodejs /app/public ./public
 
 # Copia código compilado do builder
-COPY --from=builder --chown=expressapp:nodejs /app/dist ./dist
+COPY --from=builder --chown=emailsapp:nodejs /app/dist ./dist
 
 # Copia package.json para ter as informações necessárias
-COPY --from=builder --chown=expressapp:nodejs /app/package*.json ./
+COPY --from=builder --chown=emailsapp:nodejs /app/package*.json ./
 
 # Muda para usuário não-root
-USER expressapp
+USER emailsapp
 
 # Expõe a porta da aplicação
 EXPOSE 3333
