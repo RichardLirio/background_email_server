@@ -137,13 +137,22 @@ Para personalizar o corpo do email:
 
 ### Autenticação
 
-Primeiro, obtenha um token JWT:
+Primeiro, registre-se:
 
 ```bash
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3333/api/v1/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "password"}'
+  -d '{"name": "Example Enterprise Admin LTDA", "secret": "Admin@1234", "scopes": ["read", "write", "admin"]}'
 ```
+
+Agora obtenha um token JWT:
+
+```bash
+curl -X POST http://localhost:3333/api/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"client_id": "{{client_id}}", "client_secret":"Admin@103256"}'
+```
+
 
 ### Enviando Emails em Lote
 
@@ -151,20 +160,40 @@ curl -X POST http://localhost:3000/auth/login \
 curl -X POST http://localhost:3000/mail/batch \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_JWT_TOKEN" \
-  -d '{
-    "emails": [
-      {
-        "to": "usuario1@exemplo.com",
-        "subject": "Bem-vindo!",
-        "clientId": "client-123"
-      },
-      {
-        "to": "usuario2@exemplo.com", 
-        "subject": "Newsletter Mensal",
-        "clientId": "client-456"
-      }
-    ]
-  }'
+  -d ' 
+      [
+        {
+          "from": {
+            "name": "Sistema de Cobrança",
+            "email": "example@example.com.br"
+          },
+          "to": {
+            "name": "Cliente 1",
+            "email": "cliente1@hotmail.com"
+          },
+          "cc": {
+            "name": "Financeiro",
+            "email": "financeiro@example.com.br"
+          },
+          "subject": "Fatura #4"
+        },
+        {
+          "from": {
+            "name": "Sistema de Cobrança",
+            "email": "example@example.com.br"
+          },
+          "to": {
+            "name": "Cliente 2",
+            "email": "cliente2@hotmail.com"
+          },
+          "cc": {
+            "name": "Financeiro",
+            "email": "financeiro@example.com.br"
+          },
+          "subject": "Fatura #5"
+        },
+      ]
+      
 ```
 
 ### Monitoramento com Bull Board
@@ -180,14 +209,14 @@ Acesse o dashboard em: `http://localhost:3333/admin/queues`
 
 ### Autenticação
 ```http
-POST /auth/login                 # Fazer login e obter JWT token
+POST /auth/token           # Fazer login e obter JWT token
 ```
 
 ### Envio de Emails
 ```http
-POST /mail/batch                 # Enviar lote de emails
-GET  /mail/jobs/:id              # Verificar status de um job específico
-GET  /mail/stats                 # Estatísticas gerais dos envios
+POST /emails/batch               # Enviar lote de emails
+GET  /emails/job/:jobId          # Verificar status de um job específico
+GET  /emails/stats               # Estatísticas gerais dos envios
 ```
 
 ### Monitoramento
@@ -199,15 +228,25 @@ GET  /health                     # Health check da aplicação
 ### Exemplo de Payload para Envio em Lote
 
 ```json
-{
-  "emails": [
-    {
-      "to": "cliente@exemplo.com",
-      "subject": "Assunto do Email",
-      "clientId": "identificador-do-cliente"
-    }
-  ]
-}
+
+[
+  {
+    "from": {
+      "name": "Sistema de Cobrança",
+      "email": "example@example.com.br"
+    },
+    "to": {
+      "name": "Cliente 1",
+      "email": "cliente1@hotmail.com"
+    },
+    "cc": {
+      "name": "Financeiro",
+      "email": "financeiro@example.com.br"
+    },
+    "subject": "Fatura #4"
+  }
+]
+
 ```
 
 ## 🏗️ Estrutura do Projeto
@@ -278,8 +317,6 @@ npm run build          # Build do projeto
 npm start              # Iniciar servidor em produção
 npm run worker         # Iniciar apenas o worker de processamento
 npm run worker:dev     # Iniciar apenas o worker de processamento em desenvolvimento
-npm run lint           # Verificar código com ESLint
-npm run lint:fix       # Corrigir problemas automaticamente
 ```
 
 ## 🐳 Docker

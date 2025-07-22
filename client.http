@@ -77,7 +77,7 @@ Authorization: Bearer {{authToken}}
 ###
 
 # @name Get_Batch_status_byID
-GET {{baseUrl}}/api/v1/emails/job/batch-1753187931533-9860cd76
+GET {{baseUrl}}/api/v1/emails/job/:jobId
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
