@@ -1,4 +1,7 @@
 @baseUrl = http://localhost:3333
+
+@client_id = {{Register.response.body.data.client_id}}
+
 @authToken = {{Authenticate.response.body.data.access_token}}
 
 
@@ -7,8 +10,8 @@ POST {{baseUrl}}/api/v1/auth/register
 Content-Type: application/json
 
 {
-    "name": "HM Tecnologia Ltda Admin",
-    "secret": "Admin@103256",
+    "name": "Example Enterprise Admin LTDA",
+    "secret": "Admin@1234",
     "scopes": ["read", "write", "admin"]
 }
 
@@ -20,8 +23,98 @@ POST {{baseUrl}}/api/v1/auth/token
 Content-Type: application/json
 
 {
-    "client_id": "944a0a58-ca97-4e47-a275-7f6f11f66f32",
+    "client_id": "{{client_id}}",
     "client_secret":"Admin@103256"
 }
 
 ###
+
+# @name Add_batch
+POST {{baseUrl}}/api/v1/emails/batch
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+[
+  {
+    "from": {
+      "name": "Sistema de Cobrança",
+      "email": "example@example.com.br"
+    },
+    "to": {
+      "name": "Cliente 1",
+      "email": "cliente1@hotmail.com"
+    },
+    "cc": {
+      "name": "Financeiro",
+      "email": "financeiro@example.com.br"
+    },
+    "subject": "Fatura #4"
+  },
+  {
+    "from": {
+      "name": "Sistema de Cobrança",
+      "email": "example@example.com.br"
+    },
+    "to": {
+      "name": "Cliente 2",
+      "email": "cliente2@hotmail.com"
+    },
+    "cc": {
+      "name": "Financeiro",
+      "email": "financeiro@example.com.br"
+    },
+    "subject": "Fatura #5"
+  },
+]
+
+###
+
+# @name Get_activate_batches
+GET {{baseUrl}}/api/v1/emails/jobs/active
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name Get_Batch_status_byID
+GET {{baseUrl}}/api/v1/emails/job/batch-1753187931533-9860cd76
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name Get_general-stats
+GET {{baseUrl}}/api/v1/emails/stats
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+
+# @name Cleanup_old_batchs
+POST {{baseUrl}}/api/v1/emails/cleanup
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name Delete_job
+DELETE {{baseUrl}}/api/v1/emails/job/:jobId
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name Pause_queue
+POST {{baseUrl}}/api/v1/emails/queue/pause
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# @name Resume_queue
+POST {{baseUrl}}/api/v1/emails/queue/resume
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+
