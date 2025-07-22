@@ -1,0 +1,4 @@
+Proximas feactures:
+*Anexar arquivos para envio,
+*habilitar autenticação no board,
+*persistir em banco de dados,

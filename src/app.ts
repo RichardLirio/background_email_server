@@ -15,6 +15,7 @@ import { createBullBoard } from "@bull-board/api";
 import { BullAdapter } from "@bull-board/api/bullAdapter";
 import { emailBatchQueue } from "./app/libs/queue";
 import { FastifyAdapter } from "@bull-board/fastify";
+import { homeRoutes } from "./app/routes";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
@@ -164,6 +165,7 @@ async function registerRoutes(app: FastifyInstance) {
   });
   const prefix = "/api/v1";
   // Rotas da API
+  await app.register(homeRoutes);
   await app.register(authRoutes, { prefix: `${prefix}/auth` });
   await app.register(mailRoutes, { prefix: `${prefix}/emails` });
 }

@@ -86,7 +86,6 @@ Authorization: Bearer {{authToken}}
 # @name Get_general-stats
 GET {{baseUrl}}/api/v1/emails/stats
 Content-Type: application/json
-Authorization: Bearer {{authToken}}
 
 
 ###
