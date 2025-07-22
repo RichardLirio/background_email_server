@@ -15,9 +15,16 @@
     "check": "eslint . --ext .ts",
     "check:fix": "eslint . --ext .ts  --fix"
   },
-  "keywords": [],
+  "keywords": [
+    "email",
+    "batch",
+    "bull",
+    "redis",
+    "queue",
+    "worker"
+  ],
   "author": "Richard Lirio",
-  "license": "ISC",
+  "license": "MIT",
   "packageManager": "pnpm@10.10.0",
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
